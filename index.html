@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vol2Vol Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: monospace; background: #0d0d0d; color: #e0e0e0; font-size: 13px; }
+  #dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100vh; border: 2px dashed #444; color: #666;
+    cursor: pointer; transition: border-color .2s;
+  }
+  #dropzone:hover, #dropzone.drag { border-color: #888; color: #aaa; }
+  #dropzone span { font-size: 18px; margin-bottom: 8px; }
+  #dropzone input { display: none; }
+  #app { display: none; padding: 16px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 14px; color: #888; margin-bottom: 16px; }
+  .stats {
+    display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .stat {
+    background: #1a1a1a; border: 1px solid #2a2a2a; padding: 10px 16px;
+    border-radius: 4px; min-width: 120px;
+  }
+  .stat .label { color: #555; font-size: 11px; margin-bottom: 4px; }
+  .stat .value { color: #e0e0e0; font-size: 15px; font-weight: bold; }
+  .stat .value.up { color: #4caf50; }
+  .stat .value.down { color: #f44336; }
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .chart-box {
+    background: #1a1a1a; border: 1px solid #2a2a2a;
+    border-radius: 4px; padding: 12px;
+  }
+  .chart-box h2 { font-size: 11px; color: #555; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+  .chart-box canvas { max-height: 220px; }
+  .full { grid-column: 1 / -1; }
+  select {
+    background: #1a1a1a; border: 1px solid #333; color: #e0e0e0;
+    padding: 4px 8px; font-family: monospace; font-size: 12px; border-radius: 3px;
+    margin-bottom: 16px;
+  }
+  label { color: #555; font-size: 11px; margin-right: 6px; }
+  .footer { color: #333; font-size: 11px; margin-top: 12px; }
+  @media (max-width: 700px) { .charts { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div id="dropzone" onclick="document.getElementById('fileInput').click()">
+  <span>📂</span>
+  <div>Drop your <strong>vol2vol.db</strong> here</div>
+  <div style="margin-top:6px;font-size:11px">or click to browse</div>
+  <input type="file" id="fileInput" accept=".db">
+</div>
+
+<div id="app">
+  <h1>VOL2VOL DASHBOARD</h1>
+  <label>Snapshot</label>
+  <select id="snapshotSelect"></select>
+
+  <div class="stats" id="statsBar"></div>
+
+  <div class="charts">
+    <div class="chart-box full">
+      <h2>Vol Smile — Strike vs Implied Vol</h2>
+      <canvas id="smileChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h2>Put Open Interest by Strike</h2>
+      <canvas id="putOiChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h2>Call Open Interest by Strike</h2>
+      <canvas id="callOiChart"></canvas>
+    </div>
+    <div class="chart-box full">
+      <h2>Vol Over Time (ATM)</h2>
+      <canvas id="volTimeChart"></canvas>
+    </div>
+  </div>
+  <div class="footer" id="footer"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+<script>
+let db, charts = {};
+
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); loadFile(e.dataTransfer.files[0]); });
+document.getElementById('fileInput').addEventListener('change', e => loadFile(e.target.files[0]));
+
+async function loadFile(file) {
+  const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
+  const buf = await file.arrayBuffer();
+  db = new SQL.Database(new Uint8Array(buf));
+
+  // Populate snapshot selector
+  const sel = document.getElementById('snapshotSelect');
+  const times = db.exec("SELECT DISTINCT fetched_at FROM intraday ORDER BY fetched_at DESC LIMIT 100")[0];
+  if (!times) { alert('No data found in intraday table.'); return; }
+  times.values.forEach(([t]) => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t.replace('T', ' ').replace(/\.\d+Z$/, ' UTC');
+    sel.appendChild(o);
+  });
+
+  document.getElementById('dropzone').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  render(sel.value);
+  sel.addEventListener('change', () => render(sel.value));
+}
+
+function q(sql, params=[]) {
+  const res = db.exec(sql, params);
+  return res.length ? res[0].values : [];
+}
+
+function render(ts) {
+  const rows = q(
+    "SELECT strike, call, put, vol_settle FROM intraday WHERE fetched_at=? ORDER BY strike",
+    [ts]
+  );
+  const meta = q(
+    "SELECT symbol, dte, future_price, future_chg, put_oi, call_oi, vol, vol_chg FROM intraday WHERE fetched_at=? LIMIT 1",
+    [ts]
+  );
+  if (!rows.length || !meta.length) return;
+
+  const [symbol, dte, futPrice, futChg, putOi, callOi, vol, volChg] = meta[0];
+  const strikes = rows.map(r => r[0]);
+  const calls   = rows.map(r => r[1]);
+  const puts    = rows.map(r => r[2]);
+  const vols    = rows.map(r => r[3]);
+
+  // Stats bar
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="label">Symbol</div><div class="value">${symbol}</div></div>
+    <div class="stat"><div class="label">DTE</div><div class="value">${dte?.toFixed(2) ?? '-'}</div></div>
+    <div class="stat"><div class="label">Future</div><div class="value">${futPrice ?? '-'}</div></div>
+    <div class="stat"><div class="label">Future Chg</div><div class="value ${futChg >= 0 ? 'up' : 'down'}">${futChg >= 0 ? '+' : ''}${futChg}</div></div>
+    <div class="stat"><div class="label">Put OI</div><div class="value">${putOi?.toLocaleString()}</div></div>
+    <div class="stat"><div class="label">Call OI</div><div class="value">${callOi?.toLocaleString()}</div></div>
+    <div class="stat"><div class="label">Vol</div><div class="value">${vol?.toFixed(2)}</div></div>
+    <div class="stat"><div class="label">Vol Chg</div><div class="value ${volChg >= 0 ? 'up' : 'down'}">${volChg >= 0 ? '+' : ''}${volChg}</div></div>
+  `;
+
+  // Vol smile
+  mkChart('smileChart', 'line', strikes, [{
+    label: 'IV', data: vols, borderColor: '#7c9ef5',
+    borderWidth: 1.5, pointRadius: 2, tension: 0.3, fill: false
+  }]);
+
+  // Put OI
+  mkChart('putOiChart', 'bar', strikes, [{
+    label: 'Put OI', data: puts, backgroundColor: '#f4433655'
+  }]);
+
+  // Call OI
+  mkChart('callOiChart', 'bar', strikes, [{
+    label: 'Call OI', data: calls, backgroundColor: '#4caf5055'
+  }]);
+
+  // Vol over time (ATM = closest strike to future price)
+  const volHistory = q(
+    "SELECT fetched_at, vol FROM intraday WHERE strike=(SELECT strike FROM intraday WHERE fetched_at=fetched_at ORDER BY ABS(strike-future_price) LIMIT 1) GROUP BY fetched_at ORDER BY fetched_at DESC LIMIT 200"
+  );
+  // simpler: just grab vol (headline vol) over time
+  const volTime = q("SELECT fetched_at, vol FROM intraday GROUP BY fetched_at ORDER BY fetched_at ASC LIMIT 200");
+  mkChart('volTimeChart', 'line',
+    volTime.map(r => r[0].replace('T',' ').replace(/\.\d+Z$/,' UTC')),
+    [{ label: 'Vol', data: volTime.map(r => r[1]), borderColor: '#f5c842', borderWidth: 1.5, pointRadius: 0, tension: 0.2, fill: false }]
+  );
+
+  const allTs = q("SELECT COUNT(DISTINCT fetched_at) FROM intraday")[0][0];
+  document.getElementById('footer').textContent = `${allTs} snapshots in database`;
+}
+
+function mkChart(id, type, labels, datasets) {
+  if (charts[id]) charts[id].destroy();
+  const cfg = {
+    type,
+    data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      animation: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#555', maxTicksLimit: 10, font: { family: 'monospace', size: 10 } }, grid: { color: '#1e1e1e' } },
+        y: { ticks: { color: '#555', font: { family: 'monospace', size: 10 } }, grid: { color: '#1e1e1e' } }
+      }
+    }
+  };
+  charts[id] = new Chart(document.getElementById(id), cfg);
+}
+</script>
+</body>
+</html>
