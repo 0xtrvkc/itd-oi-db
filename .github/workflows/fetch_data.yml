@@ -1,9 +1,9 @@
 name: Fetch Vol2Vol Data
 
 on:
+  workflow_dispatch:          # triggered externally every 5 min via cron-job.org
   schedule:
-    - cron: '*/5 * * * *'   # every 5 minutes (GitHub minimum)
-  workflow_dispatch:          # manual trigger for testing
+    - cron: '*/15 * * * *'    # backup, in case external trigger fails
 
 jobs:
   fetch:
