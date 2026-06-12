@@ -1,4 +1,4 @@
-# vol2vol ✿ snapshot log
+# vol2vol ✿ snapshot log live: https://0xtrvkc.github.io/itd-oi-db/
 
 options flow snapshot viewer. reads a SQLite db, shows intraday OI / vol / pc-ratio drift in a table.
 
