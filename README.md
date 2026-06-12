@@ -32,3 +32,5 @@ requirements.txt
 - `intraday` — parsed strike/call/put/vol data from IntradayData.txt
 - `oi_data` — raw lines from OIData.txt
 - `fetch_log` — audit log of every fetch (hash, timestamp, was_new)
+
+check cronjob https://console.cron-job.org/jobs
