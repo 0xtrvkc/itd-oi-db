@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>vol2vol ✿ snapshot log</title>
+<style>
+  /* ===== DESIGN TOKENS ===== */
+  :root {
+    /* DAY — Cottagcore + Pastel Meadow */
+    --bg:        #F7F3E9;
+    --bg2:       #FFFDD0;
+    --bg3:       #EDE8D5;
+    --line:      #D4C9A8;
+    --line2:     #C4B894;
+    --fg:        #4A3F2F;
+    --dim:       #8A7B62;
+    --dim2:      #B8A882;
+    --green:     #6B9A5E;
+    --green-bg:  #EDF4E9;
+    --red:       #C0604A;
+    --red-bg:    #FAEAE7;
+    --amber:     #B8860B;
+    --amber-bg:  #FEF6DE;
+    --cyan:      #4A7D9A;
+    --accent1:   #8A9A5B;
+    --accent2:   #E1A9C3;
+    --accent3:   #FAE6A7;
+    --moss:      #8A9A5B;
+    --rose:      #E1A9C3;
+    --lavender:  #C8C5E0;
+    --peach:     #FFE5B4;
+    --shadow:    rgba(100, 85, 60, 0.12);
+    --shadow2:   rgba(100, 85, 60, 0.22);
+
+    --mono: "JetBrains Mono", "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
+    --serif: Georgia, "Times New Roman", serif;
+
+    --radius: 14px;
+    --radius-sm: 8px;
+    --radius-xs: 5px;
+  }
+
+  /* NIGHT — Twilight/Sunset */
+  [data-theme="night"] {
+    --bg:        #1E1228;
+    --bg2:       #261535;
+    --bg3:       #2D1A3E;
+    --line:      #3D2850;
+    --line2:     #4F3568;
+    --fg:        #F0D9C8;
+    --dim:       #A08090;
+    --dim2:      #6B4E6A;
+    --green:     #78C9A8;
+    --green-bg:  rgba(120, 201, 168, 0.12);
+    --red:       #F08080;
+    --red-bg:    rgba(240, 128, 128, 0.12);
+    --amber:     #FFDAB9;
+    --amber-bg:  rgba(255, 218, 185, 0.12);
+    --cyan:      #7FBFCF;
+    --accent1:   #9F7EC8;
+    --accent2:   #F08080;
+    --accent3:   #FFDAB9;
+    --moss:      #5F9EA0;
+    --rose:      #D8799A;
+    --lavender:  #9F7EC8;
+    --peach:     #F0A875;
+    --shadow:    rgba(0, 0, 0, 0.35);
+    --shadow2:   rgba(0, 0, 0, 0.55);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    min-height: 100vh;
+    transition: background 0.4s ease, color 0.4s ease;
+  }
+
+  body {
+    font-family: var(--mono);
+    color: var(--fg);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== THEME TOGGLE ===== */
+  #themeBtn {
+    position: fixed;
+    top: 16px; right: 18px;
+    z-index: 999;
+    background: var(--bg2);
+    border: 1.5px solid var(--line2);
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--dim);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  #themeBtn:hover {
+    border-color: var(--accent1);
+    color: var(--fg);
+    box-shadow: 0 3px 14px var(--shadow2);
+  }
+  #themeBtn .icon { font-size: 15px; }
+
+  /* ===== DECORATIVE DOTS ===== */
+  .deco-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--moss);
+    opacity: 0.6;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  /* ===== DROPZONE ===== */
+  #dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg);
+    padding: 40px 20px;
+  }
+
+  /* Subtle polka-dot background texture */
+  #dropzone::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--line) 1.2px, transparent 1.2px);
+    background-size: 28px 28px;
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .dropzone-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    background: var(--bg2);
+    border: 2px dashed var(--line2);
+    border-radius: 24px;
+    padding: 60px 64px 52px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 6px 32px var(--shadow), 0 1px 0 rgba(255,255,255,0.5) inset;
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  #dropzone.drag .dropzone-inner {
+    border-color: var(--moss);
+    box-shadow: 0 8px 40px var(--shadow2), 0 0 0 4px rgba(138, 154, 91, 0.15);
+    transform: translateY(-3px);
+  }
+
+  .dz-mushroom {
+    font-size: 54px;
+    margin-bottom: 18px;
+    filter: drop-shadow(0 4px 8px var(--shadow));
+    animation: float 3.5s ease-in-out infinite;
+    display: block;
+    text-align: center;
+  }
+  #dropzone.drag .dz-mushroom { animation: wiggle 0.5s ease infinite; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-8px); }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-6deg); }
+    50%       { transform: rotate(6deg); }
+  }
+
+  .dz-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--fg);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+  }
+  .dz-sub {
+    font-size: 13px;
+    color: var(--dim);
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .dz-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--moss);
+    color: var(--bg2);
+    border: none;
+    border-radius: 50px;
+    padding: 11px 28px;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 10px var(--shadow2);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .dz-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 18px var(--shadow2); }
+  .dz-btn:active { transform: translateY(0); }
+
+  .dz-cursor {
+    display: inline-block;
+    width: 2px; height: 18px;
+    background: var(--dim2);
+    vertical-align: -4px;
+    margin-left: 2px;
+    border-radius: 2px;
+    animation: blink 1.1s steps(1) infinite;
+  }
+  #dropzone.drag .dz-cursor { background: var(--moss); }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .dz-hint {
+    margin-top: 20px;
+    font-size: 12px;
+    color: var(--dim2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dz-hint::before, .dz-hint::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  #dropzone input { display: none; }
+
+  /* ===== APP SHELL ===== */
+  #app {
+    display: none;
+    max-width: 1560px;
+    margin: 0 auto;
+    padding: 28px 22px 90px;
+  }
+
+  /* ===== TOPBAR ===== */
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-right: 130px; /* space for theme btn */
+  }
+
+  .title-group { display: flex; align-items: center; gap: 12px; }
+
+  .title-icon { font-size: 26px; }
+
+  .title {
+    font-family: var(--serif);
+    color: var(--fg);
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .title .tick { color: var(--moss); }
+
+  .title-tagline {
+    font-size: 12px;
+    color: var(--dim2);
+    margin-top: 1px;
+  }
+
+  .topbar-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+
+  .meta-pill {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 50px;
+    padding: 5px 14px;
+    font-size: 13px;
+    color: var(--dim);
+    box-shadow: 0 1px 4px var(--shadow);
+  }
+  .meta-pill b { color: var(--cyan); font-weight: 600; }
+
+  /* ===== STAT STRIP ===== */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .stat {
+    background: var(--bg2);
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 15px 12px;
+    box-shadow: 0 2px 8px var(--shadow);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 18px var(--shadow2);
+  }
+
+  /* Left accent stripe per card */
+  .stat::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--line2);
+    border-radius: var(--radius) 0 0 var(--radius);
+  }
+  .stat:nth-child(1)::before { background: var(--moss); }
+  .stat:nth-child(2)::before { background: var(--cyan); }
+  .stat:nth-child(3)::before { background: var(--green); }
+  .stat:nth-child(4)::before { background: var(--lavender); }
+  .stat:nth-child(5)::before { background: var(--rose); }
+  .stat:nth-child(6)::before { background: var(--peach); }
+  .stat:nth-child(7)::before { background: var(--accent3); }
+  .stat:nth-child(8)::before { background: var(--red); }
+
+  .stat .l {
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 10.5px;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+  .stat .v {
+    color: var(--fg);
+    font-size: 17px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .stat .v.up { color: var(--green); }
+  .stat .v.down { color: var(--red); }
+  .stat .sub {
+    color: var(--dim2);
+    font-size: 11.5px;
+    margin-top: 4px;
+  }
+  .stat .sub.up { color: var(--green); }
+  .stat .sub.down { color: var(--red); }
+
+  @media (max-width: 1080px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 600px)  { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* ===== SECTION HEADER ===== */
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 26px 0 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--fg);
+  }
+  .section-label .leaf { font-size: 16px; }
+
+  .section-hint {
+    font-size: 12px;
+    color: var(--dim2);
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: 50px;
+    padding: 3px 11px;
+  }
+
+  /* ===== TABLE ===== */
+  .tablewrap {
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius);
+    overflow-x: auto;
+    box-shadow: 0 2px 12px var(--shadow);
+    background: var(--bg2);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    min-width: 1280px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg3);
+    color: var(--dim);
+    text-align: right;
+    font-weight: 700;
+    padding: 10px 11px;
+    border-bottom: 1.5px solid var(--line);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 10;
+  }
+  thead th:first-child { border-radius: var(--radius) 0 0 0; }
+  thead th:last-child  { border-radius: 0 var(--radius) 0 0; }
+  thead th:first-child, thead th:nth-child(2), thead th:nth-child(3) { text-align: left; }
+
+  tbody td {
+    padding: 7px 11px;
+    text-align: right;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+    color: var(--fg);
+    transition: background 0.1s;
+  }
+  tbody td:first-child, tbody td:nth-child(2), tbody td:nth-child(3) { text-align: left; }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:last-child td:first-child  { border-radius: 0 0 0 var(--radius); }
+  tbody tr:last-child td:last-child   { border-radius: 0 0 var(--radius) 0; }
+
+  tbody tr:hover td { background: var(--bg3); }
+
+  tbody tr.flag td { background: var(--amber-bg); }
+  tbody tr.flag:hover td { background: color-mix(in srgb, var(--amber-bg) 80%, var(--bg3)); }
+
+  .idx { color: var(--dim2); font-size: 12px; }
+  .ts  { color: var(--cyan); }
+  .delta { color: var(--dim); font-size: 12.5px; }
+  .up   { color: var(--green); }
+  .down { color: var(--red); }
+  .zero { color: var(--dim2); }
+  .flagcell { color: var(--amber); font-weight: 600; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10.5px;
+    padding: 2px 7px;
+    border: 1.5px solid var(--line2);
+    border-radius: 50px;
+    color: var(--dim);
+    margin-right: 6px;
+    font-weight: 600;
+    background: var(--bg3);
+  }
+  .badge.new {
+    border-color: var(--moss);
+    color: var(--moss);
+    background: var(--green-bg);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    color: var(--dim2);
+    font-size: 12.5px;
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 2px;
+  }
+  .footer .blink { color: var(--dim); }
+  .footer-leaf { opacity: 0.6; }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar { height: 9px; width: 9px; }
+  ::-webkit-scrollbar-track { background: var(--bg); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line2);
+    border-radius: 99px;
+    border: 2px solid var(--bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--dim2); }
+
+  /* ===== DIVIDER ===== */
+  .cozy-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--dim2);
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .cozy-divider::before, .cozy-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  /* ===== TRANSITIONS ===== */
+  #app, .stat, .tablewrap, thead th, .meta-pill, .section-hint, .badge {
+    transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme toggle — always visible -->
+<button id="themeBtn" onclick="toggleTheme()">
+  <span class="icon" id="themeIcon">🌙</span>
+  <span id="themeLabel">night mode</span>
+</button>
+
+<!-- ===== DROP ZONE ===== -->
+<div id="dropzone" onclick="document.getElementById('fileInput').click()">
+  <div class="dropzone-inner">
+    <span class="dz-mushroom">🍄</span>
+    <div class="dz-title">vol2vol · snapshot log</div>
+    <div class="dz-sub">drop your <em>vol2vol.db</em> here to begin<span class="dz-cursor"></span></div>
+    <button class="dz-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
+      🌿 open database file
+    </button>
+    <div class="dz-hint">drag &amp; drop also works</div>
+  </div>
+  <input type="file" id="fileInput" accept=".db">
+</div>
+
+<!-- ===== APP ===== -->
+<div id="app">
+  <div class="topbar">
+    <div class="title-group">
+      <span class="title-icon">🍄</span>
+      <div>
+        <div class="title">vol2vol<span class="tick"> ✿ </span>log</div>
+        <div class="title-tagline">options flow snapshot viewer</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="meta-pill" id="topmeta"></div>
+    </div>
+  </div>
+
+  <div class="stats" id="statsBar"></div>
+
+  <div class="section-head">
+    <div class="section-label">
+      <span class="leaf">🌿</span>
+      snapshot log — latest 100
+    </div>
+    <span class="section-hint">Δ vs prior fetch</span>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>fetched_at (utc)</th>
+          <th>Δt</th>
+          <th>future</th>
+          <th>fut chg</th>
+          <th>vol</th>
+          <th>vol chg</th>
+          <th>Δvol</th>
+          <th>put oi</th>
+          <th>Δ put oi</th>
+          <th>call oi</th>
+          <th>Δ call oi</th>
+          <th>pc ratio</th>
+          <th>Δpc</th>
+          <th>dte</th>
+        </tr>
+      </thead>
+      <tbody id="logBody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    <span class="footer-leaf">🌾</span>
+    <span id="footerLeft"></span>
+    <span class="blink" id="footerRight"></span>
+    <span class="footer-leaf">🌾</span>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+<script>
+/* ===== THEME ===== */
+function toggleTheme() {
+  const isNight = document.documentElement.getAttribute('data-theme') === 'night';
+  document.documentElement.setAttribute('data-theme', isNight ? 'day' : 'night');
+  document.getElementById('themeIcon').textContent  = isNight ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = isNight ? 'night mode' : 'day mode';
+  try { localStorage.setItem('v2v-theme', isNight ? 'day' : 'night'); } catch(e){}
+}
+(function initTheme() {
+  let t = 'day';
+  try { t = localStorage.getItem('v2v-theme') || 'day'; } catch(e){}
+  document.documentElement.setAttribute('data-theme', t);
+  document.getElementById('themeIcon').textContent  = t === 'night' ? '☀️' : '🌙';
+  document.getElementById('themeLabel').textContent = t === 'night' ? 'day mode' : 'night mode';
+})();
+
+/* ===== DB ===== */
+let db;
+
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); loadFile(e.dataTransfer.files[0]); });
+document.getElementById('fileInput').addEventListener('change', e => loadFile(e.target.files[0]));
+
+function q(sql, params = []) {
+  const res = db.exec(sql, params);
+  return res.length ? res[0].values : [];
+}
+
+async function loadFile(file) {
+  const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
+  const buf = await file.arrayBuffer();
+  db = new SQL.Database(new Uint8Array(buf));
+
+  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
+  if (!check.length) { alert('No "intraday" table found.'); return; }
+
+  document.getElementById('dropzone').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('topmeta').textContent = `src ${file.name} :: ${(file.size/1024).toFixed(1)} kb`;
+
+  render();
+}
+
+function fmtNum(v, d = 2) {
+  if (v === null || v === undefined) return '-';
+  return Number(v).toFixed(d);
+}
+function fmtInt(v) {
+  if (v === null || v === undefined) return '-';
+  return Number(v).toLocaleString();
+}
+function fmtTs(t) {
+  return t.replace('T', ' ').replace(/\.\d+Z?$/, '').replace('+00:00', '');
+}
+function deltaCell(curr, prev, d = 2, suffix = '') {
+  if (prev === null || prev === undefined) return '<span class="zero">—</span>';
+  const diff = curr - prev;
+  if (Math.abs(diff) < 1e-9) return '<span class="zero">0' + suffix + '</span>';
+  const cls = diff > 0 ? 'up' : 'down';
+  const sign = diff > 0 ? '+' : '';
+  return `<span class="${cls}">${sign}${diff.toFixed(d)}${suffix}</span>`;
+}
+function deltaSpark(curr, prev) {
+  if (prev === null || prev === undefined) return '';
+  const diff = curr - prev;
+  if (Math.abs(diff) < 1e-9) return '<span class="zero">·</span>';
+  return diff > 0 ? '<span class="up">▲</span>' : '<span class="down">▼</span>';
+}
+
+function render() {
+  // one row per snapshot (headline fields), aggregated from intraday
+  const snaps = q(`
+    SELECT fetched_at, symbol, MAX(dte), MAX(future_price), MAX(future_chg),
+           MAX(put_oi), MAX(call_oi), MAX(vol), MAX(vol_chg)
+    FROM intraday
+    GROUP BY fetched_at
+    ORDER BY fetched_at DESC
+    LIMIT 100
+  `);
+  if (!snaps.length) return;
+
+  // total snapshot count + version (row) count + per-snapshot strike counts
+  const totalSnaps = q("SELECT COUNT(DISTINCT fetched_at) FROM intraday")[0][0];
+  const totalRows  = q("SELECT COUNT(*) FROM intraday")[0][0];
+  const [minTs, maxTs] = q("SELECT MIN(fetched_at), MAX(fetched_at) FROM intraday")[0];
+  const symbol = snaps[0][1];
+
+  // pc ratio per snapshot
+  const withPc = snaps.map(r => {
+    const [ts, sym, dte, fut, futChg, putOi, callOi, vol, volChg] = r;
+    const pc = callOi ? putOi / callOi : null;
+    return { ts, dte, fut, futChg, putOi, callOi, vol, volChg, pc };
+  });
+
+  // ---- stat strip (senior-quant lens) ----
+  const latest = withPc[0];
+  const prev = withPc[1] || null;
+
+  // vol regime: realized dispersion of headline vol over visible window
+  const volsAll = withPc.map(r => r.vol).filter(v => v != null);
+  const volMean = volsAll.reduce((a,b)=>a+b,0) / volsAll.length;
+  const volMax = Math.max(...volsAll);
+  const volMin = Math.min(...volsAll);
+
+  // pc ratio drift: latest vs avg of window — flow positioning signal
+  const pcAll = withPc.map(r => r.pc).filter(v => v != null);
+  const pcMean = pcAll.reduce((a,b)=>a+b,0) / pcAll.length;
+
+  // staleness — gap since last fetch vs current time
+  const lastFetchMs = new Date(latest.ts).getTime();
+  const ageMin = (Date.now() - lastFetchMs) / 60000;
+
+  // median refresh cadence across window
+  const gaps = [];
+  for (let i = 0; i < withPc.length - 1; i++) {
+    gaps.push((new Date(withPc[i].ts) - new Date(withPc[i+1].ts)) / 60000);
+  }
+  gaps.sort((a,b)=>a-b);
+  const medGap = gaps.length ? gaps[Math.floor(gaps.length/2)] : 0;
+
+  // total OI now vs window-ago, for flow buildup
+  const oldest = withPc[withPc.length - 1];
+  const oiNow = latest.putOi + latest.callOi;
+  const oiOld = oldest.putOi + oldest.callOi;
+  const oiChgPct = oldest ? ((oiNow - oiOld) / oiOld * 100) : 0;
+
+  const ageFlag = ageMin > medGap * 2;
+
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="l">🌿 symbol / dte</div><div class="v">${symbol} / ${fmtNum(latest.dte,2)}</div></div>
+    <div class="stat"><div class="l">📈 future</div><div class="v">${fmtNum(latest.fut,1)}</div><div class="sub">chg ${fmtNum(latest.futChg,1)}</div></div>
+    <div class="stat"><div class="l">🌊 vol (latest)</div><div class="v ${latest.volChg>=0?'up':'down'}">${fmtNum(latest.vol,2)}</div><div class="sub">chg ${latest.volChg>=0?'+':''}${fmtNum(latest.volChg,2)}</div></div>
+    <div class="stat"><div class="l">📊 vol range (win)</div><div class="v">${fmtNum(volMin,1)}–${fmtNum(volMax,1)}</div><div class="sub">avg ${fmtNum(volMean,2)}</div></div>
+    <div class="stat"><div class="l">🌸 pc ratio</div><div class="v">${fmtNum(latest.pc,3)}</div><div class="sub">win avg ${fmtNum(pcMean,3)}</div></div>
+    <div class="stat"><div class="l">🍂 total oi</div><div class="v">${fmtInt(oiNow)}</div><div class="sub ${oiChgPct>=0?'up':'down'}">${oiChgPct>=0?'+':''}${oiChgPct.toFixed(1)}% / ${withPc.length}snaps</div></div>
+    <div class="stat"><div class="l">⏱ cadence (med)</div><div class="v">${medGap.toFixed(0)}m</div><div class="sub">${gaps.length} gaps sampled</div></div>
+    <div class="stat"><div class="l">🕯 last fetch age</div><div class="v ${ageFlag?'down':''}">${ageMin.toFixed(0)}m</div><div class="sub">${ageFlag ? 'stale vs cadence' : 'in line'}</div></div>
+  `;
+
+  // ---- log table ----
+  const body = document.getElementById('logBody');
+  body.innerHTML = withPc.map((r, i) => {
+    const p = withPc[i+1] || null;
+    const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
+    const gapStr = gapMin === null ? '<span class="zero">—</span>' : `${gapMin.toFixed(0)}m`;
+    const flag = p && gapMin > medGap * 2;
+    const pc = r.pc;
+
+    return `<tr class="${flag ? 'flag' : ''}">
+      <td class="idx num">${i === 0 ? `<span class="badge new">✿ latest</span>${withPc.length - i}` : withPc.length - i}</td>
+      <td class="ts">${fmtTs(r.ts)}</td>
+      <td class="delta num ${flag ? 'flagcell' : ''}">${gapStr}</td>
+      <td class="num">${fmtNum(r.fut,1)}</td>
+      <td class="num ${r.futChg>0?'up':r.futChg<0?'down':'zero'}">${r.futChg>0?'+':''}${fmtNum(r.futChg,1)}</td>
+      <td class="num">${fmtNum(r.vol,2)}</td>
+      <td class="num ${r.volChg>0?'up':r.volChg<0?'down':'zero'}">${r.volChg>0?'+':''}${fmtNum(r.volChg,2)}</td>
+      <td class="delta num">${deltaSpark(r.vol, p?.vol)} ${deltaCell(r.vol, p?.vol, 2)}</td>
+      <td class="num">${fmtInt(r.putOi)}</td>
+      <td class="delta num">${deltaCell(r.putOi, p?.putOi, 0)}</td>
+      <td class="num">${fmtInt(r.callOi)}</td>
+      <td class="delta num">${deltaCell(r.callOi, p?.callOi, 0)}</td>
+      <td class="num">${fmtNum(pc,3)}</td>
+      <td class="delta num">${deltaCell(pc, p?.pc, 3)}</td>
+      <td class="num">${fmtNum(r.dte,2)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('footerLeft').textContent =
+    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`;
+  document.getElementById('footerRight').textContent =
+    `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
+}
+</script>
+</body>
+</html>
