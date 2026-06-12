@@ -633,18 +633,65 @@ function toggleTheme() {
 /* ===== DB ===== */
 let db;
 
-const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag'); loadFile(e.dataTransfer.files[0]); });
-document.getElementById('fileInput').addEventListener('change', e => loadFile(e.target.files[0]));
+const DB_URL = 'https://raw.githubusercontent.com/0xtrvkc/itd-oi-db/main/data/vol2vol.db';
 
 function q(sql, params = []) {
   const res = db.exec(sql, params);
   return res.length ? res[0].values : [];
 }
 
-async function loadFile(file) {
+async function autoLoad() {
+  const dz = document.getElementById('dropzone');
+  const dzInner = dz.querySelector('.dropzone-inner');
+
+  // Show loading state inside the dropzone card
+  dzInner.innerHTML = `
+    <span class="dz-mushroom">🍄</span>
+    <div class="dz-title">loading data…</div>
+    <div class="dz-sub">fetching vol2vol.db from repository</div>
+    <div style="margin-top:18px;font-size:12px;color:var(--dim);font-family:var(--mono)">
+      ${DB_URL.replace('https://raw.githubusercontent.com/', 'github › ')}
+    </div>
+  `;
+
+  try {
+    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
+
+    const res = await fetch(DB_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status} — could not fetch database`);
+    const buf = await res.arrayBuffer();
+    db = new SQL.Database(new Uint8Array(buf));
+
+    const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
+    if (!check.length) throw new Error('No "intraday" table found in database');
+
+    const sizeKb = (buf.byteLength / 1024).toFixed(1);
+    document.getElementById('dropzone').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('topmeta').textContent = `src vol2vol.db :: ${sizeKb} kb :: auto-loaded`;
+
+    render();
+  } catch (err) {
+    dzInner.innerHTML = `
+      <span class="dz-mushroom">🍂</span>
+      <div class="dz-title">failed to load</div>
+      <div class="dz-sub" style="color:var(--red)">${err.message}</div>
+      <button class="dz-btn" style="margin-top:20px" onclick="autoLoad()">⟳ retry</button>
+    `;
+  }
+}
+
+// Also keep drag-and-drop as fallback
+const dz = document.getElementById('dropzone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag');
+  loadFileManual(e.dataTransfer.files[0]);
+});
+document.getElementById('fileInput').addEventListener('change', e => loadFileManual(e.target.files[0]));
+
+async function loadFileManual(file) {
   const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
   const buf = await file.arrayBuffer();
   db = new SQL.Database(new Uint8Array(buf));
@@ -658,6 +705,9 @@ async function loadFile(file) {
 
   render();
 }
+
+// Auto-load on page open
+autoLoad();
 
 function fmtNum(v, d = 2) {
   if (v === null || v === undefined) return '-';
