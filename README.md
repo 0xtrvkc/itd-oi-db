@@ -1,36 +1,46 @@
-# Vol2Vol Data Collector
+# vol2vol ✿ snapshot log
+
+live: https://0xtrvkc.github.io/itd-oi-db/
 
 Fetches `IntradayData.txt` and `OIData.txt` from [pageth/Vol2VolData](https://github.com/pageth/Vol2VolData) every 5 minutes and stores new data in a SQLite database.
 
-## How it works
+options flow snapshot viewer. reads a SQLite db, shows intraday OI / vol / pc-ratio drift in a table.
 
-1. GitHub Actions runs every 5 minutes
-2. Fetches both data files
-3. Hashes the content — if identical to last fetch, skips
-4. If new data detected, parses and inserts rows into `data/vol2vol.db`
-5. Commits the updated `.db` file back to this repo
+## how it works
 
-## Setup
+script pushes `data/vol2vol.db` → this repo. `index.html` auto-fetches the raw file from GitHub on load, parses it in-browser via [sql.js](https://github.com/sql-js/sql.js), renders the table. no backend, no build step.
 
-1. Create a new GitHub repo
-2. Upload all these files (keep the folder structure)
-3. Go to **Settings → Actions → General** → set to "Allow all actions"
-4. Go to **Actions** tab → click **Run workflow** to test manually
-5. Check that `data/vol2vol.db` appears after the run
-
-## File structure
+## repo structure
 
 ```
-.github/workflows/fetch_data.yml   # cron job
-scripts/fetch_and_store.py         # all logic
-data/vol2vol.db                    # auto-created on first run
-requirements.txt
+data/vol2vol.db   ← sqlite, updated by external script
+index.html        ← the whole app, single file
 ```
 
-## Database tables
+## db schema
 
-- `intraday` — parsed strike/call/put/vol data from IntradayData.txt
-- `oi_data` — raw lines from OIData.txt
-- `fetch_log` — audit log of every fetch (hash, timestamp, was_new)
+expects a table called `intraday` with these columns:
 
-check cronjob https://console.cron-job.org/jobs
+| column | type |
+|---|---|
+| fetched_at | ISO timestamp (UTC) |
+| symbol | text |
+| dte | float |
+| future_price | float |
+| future_chg | float |
+| put_oi | int |
+| call_oi | int |
+| vol | float |
+| vol_chg | float |
+
+## local use
+
+just open `index.html` in a browser. drag-and-drop a `.db` onto the page if you want to load a local file instead.
+
+## update flow
+
+```
+your script → git push data/vol2vol.db → refresh page → done
+```
+
+no cache headers set on raw.githubusercontent.com so hard-refresh (`Ctrl+Shift+R`) if you're not seeing latest data.
