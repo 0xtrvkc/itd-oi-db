@@ -510,6 +510,44 @@
   }
   ::-webkit-scrollbar-thumb:hover { background: var(--dim2); }
 
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg2);
+    border: 1.5px solid var(--line);
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .tab-btn:hover {
+    color: var(--fg);
+    border-color: var(--line2);
+  }
+  .tab-btn.active {
+    background: var(--moss);
+    border-color: var(--moss);
+    color: var(--bg2);
+  }
+  .tab-count {
+    font-size: 10.5px;
+    opacity: 0.75;
+    font-weight: 700;
+  }
+  .view { display: none; }
+  .view.active { display: block; }
+
   /* ===== DIVIDER ===== */
   .cozy-divider {
     display: flex;
@@ -571,44 +609,87 @@
 
   <div class="stats" id="statsBar"></div>
 
-  <div class="section-head">
-    <div class="section-label">
-      <span class="leaf">🌿</span>
-      snapshot log — latest 100
+  <div class="tabs">
+    <button class="tab-btn active" id="tabBtnIntraday" onclick="switchTab('intraday')">
+      📈 intraday <span class="tab-count" id="tabCountIntraday"></span>
+    </button>
+    <button class="tab-btn" id="tabBtnOi" onclick="switchTab('oi')">
+      🍂 open interest <span class="tab-count" id="tabCountOi"></span>
+    </button>
+  </div>
+
+  <!-- ===== INTRADAY VIEW ===== -->
+  <div class="view active" id="viewIntraday">
+    <div class="section-head">
+      <div class="section-label">
+        <span class="leaf">🌿</span>
+        snapshot log — latest 300
+      </div>
+      <span class="section-hint">Δ vs prior fetch</span>
     </div>
-    <span class="section-hint">Δ vs prior fetch</span>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>fetched_at (utc)</th>
+            <th>Δt</th>
+            <th>future</th>
+            <th>fut chg</th>
+            <th>vol</th>
+            <th>vol chg</th>
+            <th>Δvol</th>
+            <th>put oi</th>
+            <th>Δ put oi</th>
+            <th>call oi</th>
+            <th>Δ call oi</th>
+            <th>pc ratio</th>
+            <th>Δpc</th>
+            <th>dte</th>
+          </tr>
+        </thead>
+        <tbody id="logBody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <span class="footer-leaf">🌾</span>
+      <span id="footerLeft"></span>
+      <span class="blink" id="footerRight"></span>
+      <span class="footer-leaf">🌾</span>
+    </div>
   </div>
 
-  <div class="tablewrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>fetched_at (utc)</th>
-          <th>Δt</th>
-          <th>future</th>
-          <th>fut chg</th>
-          <th>vol</th>
-          <th>vol chg</th>
-          <th>Δvol</th>
-          <th>put oi</th>
-          <th>Δ put oi</th>
-          <th>call oi</th>
-          <th>Δ call oi</th>
-          <th>pc ratio</th>
-          <th>Δpc</th>
-          <th>dte</th>
-        </tr>
-      </thead>
-      <tbody id="logBody"></tbody>
-    </table>
-  </div>
+  <!-- ===== OI VIEW ===== -->
+  <div class="view" id="viewOi">
+    <div class="section-head">
+      <div class="section-label">
+        <span class="leaf">🍂</span>
+        open interest log — latest 300
+      </div>
+      <span class="section-hint">raw sync lines</span>
+    </div>
 
-  <div class="footer">
-    <span class="footer-leaf">🌾</span>
-    <span id="footerLeft"></span>
-    <span class="blink" id="footerRight"></span>
-    <span class="footer-leaf">🌾</span>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>fetched_at (utc)</th>
+            <th style="text-align:left">raw_line</th>
+          </tr>
+        </thead>
+        <tbody id="oiBody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <span class="footer-leaf">🍂</span>
+      <span id="footerLeftOi"></span>
+      <span class="blink" id="footerRightOi"></span>
+      <span class="footer-leaf">🍂</span>
+    </div>
   </div>
 </div>
 
@@ -743,7 +824,7 @@ function render() {
     FROM intraday
     GROUP BY fetched_at
     ORDER BY fetched_at DESC
-    LIMIT 100
+    LIMIT 300
   `);
   if (!snaps.length) return;
 
@@ -837,6 +918,62 @@ function render() {
     `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`;
   document.getElementById('footerRight').textContent =
     `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
+
+  document.getElementById('tabCountIntraday').textContent = `${totalSnaps}`;
+
+  renderOi();
+}
+
+function switchTab(name) {
+  const isIntraday = name === 'intraday';
+  document.getElementById('viewIntraday').classList.toggle('active', isIntraday);
+  document.getElementById('viewOi').classList.toggle('active', !isIntraday);
+  document.getElementById('tabBtnIntraday').classList.toggle('active', isIntraday);
+  document.getElementById('tabBtnOi').classList.toggle('active', !isIntraday);
+}
+
+function renderOi() {
+  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='oi_data'");
+  if (!check.length) {
+    document.getElementById('tabCountOi').textContent = '0';
+    document.getElementById('oiBody').innerHTML =
+      '<tr><td colspan="3" style="text-align:center;color:var(--dim)">no oi_data table found</td></tr>';
+    return;
+  }
+
+  const rows = q(`
+    SELECT fetched_at, raw_line
+    FROM oi_data
+    ORDER BY id DESC
+    LIMIT 300
+  `);
+
+  const totalRows = q("SELECT COUNT(*) FROM oi_data")[0][0];
+  const totalSnaps = q("SELECT COUNT(DISTINCT fetched_at) FROM oi_data")[0][0];
+  const [minTs, maxTs] = totalRows
+    ? q("SELECT MIN(fetched_at), MAX(fetched_at) FROM oi_data")[0]
+    : [null, null];
+
+  document.getElementById('tabCountOi').textContent = `${totalSnaps}`;
+
+  const body = document.getElementById('oiBody');
+  if (!rows.length) {
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--dim)">no oi rows yet</td></tr>';
+  } else {
+    body.innerHTML = rows.map((r, i) => {
+      const [ts, line] = r;
+      return `<tr>
+        <td class="idx num">${i === 0 ? '<span class="badge new">✿ latest</span>' : ''}${rows.length - i}</td>
+        <td class="ts">${fmtTs(ts)}</td>
+        <td style="text-align:left;color:var(--fg)">${(line ?? '').replace(/</g,'&lt;')}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('footerLeftOi').textContent = minTs
+    ? `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`
+    : 'no data yet';
+  document.getElementById('footerRightOi').textContent = `showing ${rows.length}/${totalRows}`;
 }
 </script>
 </body>
