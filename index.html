@@ -677,7 +677,19 @@
           <tr>
             <th>#</th>
             <th>fetched_at (utc)</th>
-            <th style="text-align:left">raw_line</th>
+            <th>Δt</th>
+            <th>future</th>
+            <th>fut chg</th>
+            <th>vol</th>
+            <th>vol chg</th>
+            <th>Δvol</th>
+            <th>put oi</th>
+            <th>Δ put oi</th>
+            <th>call oi</th>
+            <th>Δ call oi</th>
+            <th>pc ratio</th>
+            <th>Δpc</th>
+            <th>dte</th>
           </tr>
         </thead>
         <tbody id="oiBody"></tbody>
@@ -816,34 +828,64 @@ function deltaSpark(curr, prev) {
   return diff > 0 ? '<span class="up">▲</span>' : '<span class="down">▼</span>';
 }
 
-function render() {
-  // one row per snapshot (headline fields), aggregated from intraday
+function loadSnapshots(table, limit = 300) {
   const snaps = q(`
     SELECT fetched_at, symbol, MAX(dte), MAX(future_price), MAX(future_chg),
            MAX(put_oi), MAX(call_oi), MAX(vol), MAX(vol_chg)
-    FROM intraday
+    FROM ${table}
     GROUP BY fetched_at
     ORDER BY fetched_at DESC
-    LIMIT 300
+    LIMIT ${limit}
   `);
-  if (!snaps.length) return;
+  return snaps.map(r => {
+    const [ts, sym, dte, fut, futChg, putOi, callOi, vol, volChg] = r;
+    const pc = callOi ? putOi / callOi : null;
+    return { ts, sym, dte, fut, futChg, putOi, callOi, vol, volChg, pc };
+  });
+}
 
-  // total snapshot count + version (row) count + per-snapshot strike counts
+function buildLogRowsHtml(withPc, medGap) {
+  return withPc.map((r, i) => {
+    const p = withPc[i+1] || null;
+    const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
+    const gapStr = gapMin === null ? '<span class="zero">—</span>' : `${gapMin.toFixed(0)}m`;
+    const flag = p && gapMin > medGap * 2;
+    const pc = r.pc;
+
+    return `<tr class="${flag ? 'flag' : ''}">
+      <td class="idx num">${i === 0 ? `<span class="badge new">✿ latest</span>${withPc.length - i}` : withPc.length - i}</td>
+      <td class="ts">${fmtTs(r.ts)}</td>
+      <td class="delta num ${flag ? 'flagcell' : ''}">${gapStr}</td>
+      <td class="num">${fmtNum(r.fut,1)}</td>
+      <td class="num ${r.futChg>0?'up':r.futChg<0?'down':'zero'}">${r.futChg>0?'+':''}${fmtNum(r.futChg,1)}</td>
+      <td class="num">${fmtNum(r.vol,2)}</td>
+      <td class="num ${r.volChg>0?'up':r.volChg<0?'down':'zero'}">${r.volChg>0?'+':''}${fmtNum(r.volChg,2)}</td>
+      <td class="delta num">${deltaSpark(r.vol, p?.vol)} ${deltaCell(r.vol, p?.vol, 2)}</td>
+      <td class="num">${fmtInt(r.putOi)}</td>
+      <td class="delta num">${deltaCell(r.putOi, p?.putOi, 0)}</td>
+      <td class="num">${fmtInt(r.callOi)}</td>
+      <td class="delta num">${deltaCell(r.callOi, p?.callOi, 0)}</td>
+      <td class="num">${fmtNum(pc,3)}</td>
+      <td class="delta num">${deltaCell(pc, p?.pc, 3)}</td>
+      <td class="num">${fmtNum(r.dte,2)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function render() {
+  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
+  if (!check.length) return;
+
+  const withPc = loadSnapshots('intraday', 300);
+  if (!withPc.length) return;
+
   const totalSnaps = q("SELECT COUNT(DISTINCT fetched_at) FROM intraday")[0][0];
   const totalRows  = q("SELECT COUNT(*) FROM intraday")[0][0];
   const [minTs, maxTs] = q("SELECT MIN(fetched_at), MAX(fetched_at) FROM intraday")[0];
-  const symbol = snaps[0][1];
-
-  // pc ratio per snapshot
-  const withPc = snaps.map(r => {
-    const [ts, sym, dte, fut, futChg, putOi, callOi, vol, volChg] = r;
-    const pc = callOi ? putOi / callOi : null;
-    return { ts, dte, fut, futChg, putOi, callOi, vol, volChg, pc };
-  });
+  const symbol = withPc[0].sym;
 
   // ---- stat strip (senior-quant lens) ----
   const latest = withPc[0];
-  const prev = withPc[1] || null;
 
   // vol regime: realized dispersion of headline vol over visible window
   const volsAll = withPc.map(r => r.vol).filter(v => v != null);
@@ -886,33 +928,7 @@ function render() {
     <div class="stat"><div class="l">🕯 last fetch age</div><div class="v ${ageFlag?'down':''}">${ageMin.toFixed(0)}m</div><div class="sub">${ageFlag ? 'stale vs cadence' : 'in line'}</div></div>
   `;
 
-  // ---- log table ----
-  const body = document.getElementById('logBody');
-  body.innerHTML = withPc.map((r, i) => {
-    const p = withPc[i+1] || null;
-    const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
-    const gapStr = gapMin === null ? '<span class="zero">—</span>' : `${gapMin.toFixed(0)}m`;
-    const flag = p && gapMin > medGap * 2;
-    const pc = r.pc;
-
-    return `<tr class="${flag ? 'flag' : ''}">
-      <td class="idx num">${i === 0 ? `<span class="badge new">✿ latest</span>${withPc.length - i}` : withPc.length - i}</td>
-      <td class="ts">${fmtTs(r.ts)}</td>
-      <td class="delta num ${flag ? 'flagcell' : ''}">${gapStr}</td>
-      <td class="num">${fmtNum(r.fut,1)}</td>
-      <td class="num ${r.futChg>0?'up':r.futChg<0?'down':'zero'}">${r.futChg>0?'+':''}${fmtNum(r.futChg,1)}</td>
-      <td class="num">${fmtNum(r.vol,2)}</td>
-      <td class="num ${r.volChg>0?'up':r.volChg<0?'down':'zero'}">${r.volChg>0?'+':''}${fmtNum(r.volChg,2)}</td>
-      <td class="delta num">${deltaSpark(r.vol, p?.vol)} ${deltaCell(r.vol, p?.vol, 2)}</td>
-      <td class="num">${fmtInt(r.putOi)}</td>
-      <td class="delta num">${deltaCell(r.putOi, p?.putOi, 0)}</td>
-      <td class="num">${fmtInt(r.callOi)}</td>
-      <td class="delta num">${deltaCell(r.callOi, p?.callOi, 0)}</td>
-      <td class="num">${fmtNum(pc,3)}</td>
-      <td class="delta num">${deltaCell(pc, p?.pc, 3)}</td>
-      <td class="num">${fmtNum(r.dte,2)}</td>
-    </tr>`;
-  }).join('');
+  document.getElementById('logBody').innerHTML = buildLogRowsHtml(withPc, medGap);
 
   document.getElementById('footerLeft').textContent =
     `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`;
@@ -933,47 +949,43 @@ function switchTab(name) {
 }
 
 function renderOi() {
-  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='oi_data'");
+  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='oi'");
   if (!check.length) {
     document.getElementById('tabCountOi').textContent = '0';
     document.getElementById('oiBody').innerHTML =
-      '<tr><td colspan="3" style="text-align:center;color:var(--dim)">no oi_data table found</td></tr>';
+      '<tr><td colspan="15" style="text-align:center;color:var(--dim)">no "oi" table found — re-run the fetch script with the updated parser</td></tr>';
     return;
   }
 
-  const rows = q(`
-    SELECT fetched_at, raw_line
-    FROM oi_data
-    ORDER BY id DESC
-    LIMIT 300
-  `);
+  const withPc = loadSnapshots('oi', 300);
+  document.getElementById('tabCountOi').textContent =
+    `${q("SELECT COUNT(DISTINCT fetched_at) FROM oi")[0][0]}`;
 
-  const totalRows = q("SELECT COUNT(*) FROM oi_data")[0][0];
-  const totalSnaps = q("SELECT COUNT(DISTINCT fetched_at) FROM oi_data")[0][0];
-  const [minTs, maxTs] = totalRows
-    ? q("SELECT MIN(fetched_at), MAX(fetched_at) FROM oi_data")[0]
-    : [null, null];
-
-  document.getElementById('tabCountOi').textContent = `${totalSnaps}`;
-
-  const body = document.getElementById('oiBody');
-  if (!rows.length) {
-    body.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--dim)">no oi rows yet</td></tr>';
-  } else {
-    body.innerHTML = rows.map((r, i) => {
-      const [ts, line] = r;
-      return `<tr>
-        <td class="idx num">${i === 0 ? '<span class="badge new">✿ latest</span>' : ''}${rows.length - i}</td>
-        <td class="ts">${fmtTs(ts)}</td>
-        <td style="text-align:left;color:var(--fg)">${(line ?? '').replace(/</g,'&lt;')}</td>
-      </tr>`;
-    }).join('');
+  if (!withPc.length) {
+    document.getElementById('oiBody').innerHTML =
+      '<tr><td colspan="15" style="text-align:center;color:var(--dim)">no oi rows yet</td></tr>';
+    document.getElementById('footerLeftOi').textContent = 'no data yet';
+    document.getElementById('footerRightOi').textContent = '';
+    return;
   }
 
-  document.getElementById('footerLeftOi').textContent = minTs
-    ? `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`
-    : 'no data yet';
-  document.getElementById('footerRightOi').textContent = `showing ${rows.length}/${totalRows}`;
+  const totalSnaps = q("SELECT COUNT(DISTINCT fetched_at) FROM oi")[0][0];
+  const totalRows  = q("SELECT COUNT(*) FROM oi")[0][0];
+  const [minTs, maxTs] = q("SELECT MIN(fetched_at), MAX(fetched_at) FROM oi")[0];
+
+  const gaps = [];
+  for (let i = 0; i < withPc.length - 1; i++) {
+    gaps.push((new Date(withPc[i].ts) - new Date(withPc[i+1].ts)) / 60000);
+  }
+  gaps.sort((a,b)=>a-b);
+  const medGap = gaps.length ? gaps[Math.floor(gaps.length/2)] : 0;
+
+  document.getElementById('oiBody').innerHTML = buildLogRowsHtml(withPc, medGap);
+
+  document.getElementById('footerLeftOi').textContent =
+    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`;
+  document.getElementById('footerRightOi').textContent =
+    `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
 }
 </script>
 </body>
