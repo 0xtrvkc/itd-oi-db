@@ -10,31 +10,35 @@ URLS = {
 }
 DB_PATH = "data/vol2vol.db"
 
+# Both IntradayData.txt and OIData.txt share the exact same layout:
+#   line 0: "<symbol> (<dte> DTE) vs <price> (<chg>) - <label>"
+#   line 1: "Put: N  Call: N  Vol: N  Vol Chg: N  Future Chg: N"
+#   line 2: "Strike,Call,Put,Vol Settle"
+#   line 3+: "<strike>,<call>,<put>,<vol_settle>"
+# so both sources are parsed with the same function and stored in
+# same-shaped tables ("intraday" and "oi").
+SNAPSHOT_TABLE_SCHEMA = """
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    fetched_at   DATETIME NOT NULL,
+    symbol       TEXT,
+    dte          REAL,
+    future_price REAL,
+    future_chg   REAL,
+    put_oi       INTEGER,
+    call_oi      INTEGER,
+    vol          REAL,
+    vol_chg      REAL,
+    strike       INTEGER,
+    call         INTEGER,
+    put          INTEGER,
+    vol_settle   REAL
+"""
+
 
 def init_db(conn):
-    conn.executescript("""
-        CREATE TABLE IF NOT EXISTS intraday (
-            id           INTEGER PRIMARY KEY AUTOINCREMENT,
-            fetched_at   DATETIME NOT NULL,
-            symbol       TEXT,
-            dte          REAL,
-            future_price REAL,
-            future_chg   REAL,
-            put_oi       INTEGER,
-            call_oi      INTEGER,
-            vol          REAL,
-            vol_chg      REAL,
-            strike       INTEGER,
-            call         INTEGER,
-            put          INTEGER,
-            vol_settle   REAL
-        );
-
-        CREATE TABLE IF NOT EXISTS oi_data (
-            id           INTEGER PRIMARY KEY AUTOINCREMENT,
-            fetched_at   DATETIME NOT NULL,
-            raw_line     TEXT
-        );
+    conn.executescript(f"""
+        CREATE TABLE IF NOT EXISTS intraday ({SNAPSHOT_TABLE_SCHEMA});
+        CREATE TABLE IF NOT EXISTS oi ({SNAPSHOT_TABLE_SCHEMA});
 
         CREATE TABLE IF NOT EXISTS fetch_log (
             id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -59,7 +63,8 @@ def get_last_hash(conn, source: str):
     return row[0] if row else None
 
 
-def parse_intraday(text: str) -> dict:
+def parse_snapshot(text: str) -> dict:
+    """Parses IntradayData.txt / OIData.txt — identical format for both."""
     lines = text.strip().splitlines()
     header = lines[0]
     meta   = lines[1]
@@ -123,12 +128,30 @@ def fetch_fresh(url: str) -> str:
     return resp.text
 
 
+def store_snapshot(conn, table: str, now: str, parsed: dict):
+    for row in parsed["rows"]:
+        conn.execute(f"""
+            INSERT INTO {table}
+            (fetched_at, symbol, dte, future_price, future_chg,
+             put_oi, call_oi, vol, vol_chg, strike, call, put, vol_settle)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+        """, (
+            now, parsed["symbol"], parsed["dte"], parsed["future_price"],
+            parsed["future_chg"], parsed["put_oi"], parsed["call_oi"],
+            parsed["vol"], parsed["vol_chg"],
+            row["strike"], row["call"], row["put"], row["vol_settle"]
+        ))
+
+
 def run():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode=WAL")
     init_db(conn)
 
     now = datetime.now(timezone.utc).isoformat()
+
+    # source -> destination table (both parsed identically)
+    TABLES = {"intraday": "intraday", "oi": "oi"}
 
     for source, url in URLS.items():
         try:
@@ -151,30 +174,16 @@ def run():
             conn.commit()
             continue
 
-        if source == "intraday":
-            parsed = parse_intraday(text)
-            for row in parsed["rows"]:
-                conn.execute("""
-                    INSERT INTO intraday
-                    (fetched_at, symbol, dte, future_price, future_chg,
-                     put_oi, call_oi, vol, vol_chg, strike, call, put, vol_settle)
-                    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-                """, (
-                    now, parsed["symbol"], parsed["dte"], parsed["future_price"],
-                    parsed["future_chg"], parsed["put_oi"], parsed["call_oi"],
-                    parsed["vol"], parsed["vol_chg"],
-                    row["strike"], row["call"], row["put"], row["vol_settle"]
-                ))
-            print(f"[{source}] NEW — inserted {len(parsed['rows'])} rows")
+        try:
+            parsed = parse_snapshot(text)
+        except Exception as e:
+            print(f"[{source}] PARSE ERROR: {e}")
+            conn.commit()
+            continue
 
-        elif source == "oi":
-            # Store raw lines until OIData structure is confirmed
-            for line in text.strip().splitlines():
-                conn.execute(
-                    "INSERT INTO oi_data(fetched_at, raw_line) VALUES (?,?)",
-                    (now, line)
-                )
-            print(f"[{source}] NEW — stored raw OI data")
+        table = TABLES[source]
+        store_snapshot(conn, table, now, parsed)
+        print(f"[{source}] NEW — inserted {len(parsed['rows'])} rows into {table}")
 
         conn.commit()
 
