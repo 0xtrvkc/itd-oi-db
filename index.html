@@ -657,7 +657,7 @@ async function autoLoad() {
   try {
     const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
 
-    const res = await fetch(DB_URL);
+    const res = await fetch(`${DB_URL}?t=${Date.now()}`, { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status} — could not fetch database`);
     const buf = await res.arrayBuffer();
     db = new SQL.Database(new Uint8Array(buf));
