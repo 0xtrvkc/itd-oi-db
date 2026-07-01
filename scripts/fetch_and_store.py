@@ -100,6 +100,29 @@ def parse_intraday(text: str) -> dict:
     }
 
 
+def fetch_fresh(url: str) -> str:
+    """
+    GitHub's raw.githubusercontent.com is fronted by a CDN (Fastly) that can
+    serve a cached copy of the file for a while after the origin content has
+    changed. A plain requests.get() can therefore return stale bytes, which
+    makes our content-hash dedup falsely think "nothing changed" even when
+    the upstream source has moved on.
+
+    We defeat this by:
+      1. Appending a unique cache-busting query param, so the CDN treats
+         each request as a distinct URL (cache miss).
+      2. Sending no-cache headers as a secondary precaution.
+    """
+    resp = requests.get(
+        url,
+        params={"t": int(datetime.now(timezone.utc).timestamp() * 1000)},
+        headers={"Cache-Control": "no-cache", "Pragma": "no-cache"},
+        timeout=10,
+    )
+    resp.raise_for_status()
+    return resp.text
+
+
 def run():
     conn = sqlite3.connect(DB_PATH)
     conn.execute("PRAGMA journal_mode=WAL")
@@ -109,9 +132,7 @@ def run():
 
     for source, url in URLS.items():
         try:
-            resp = requests.get(url, timeout=10)
-            resp.raise_for_status()
-            text = resp.text
+            text = fetch_fresh(url)
         except Exception as e:
             print(f"[{source}] FETCH ERROR: {e}")
             continue
