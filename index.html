@@ -109,6 +109,34 @@
   }
   #themeBtn .icon { font-size: 15px; }
 
+  /* ===== TZ TOGGLE (new) ===== */
+  #tzBtn {
+    position: fixed;
+    top: 16px; right: 150px;
+    z-index: 999;
+    background: var(--bg2);
+    border: 1.5px solid var(--line2);
+    border-radius: 50px;
+    padding: 6px 14px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--dim);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 7px;
+    box-shadow: 0 2px 8px var(--shadow);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+  #tzBtn:hover {
+    border-color: var(--accent1);
+    color: var(--fg);
+    box-shadow: 0 3px 14px var(--shadow2);
+  }
+  #tzBtn .icon { font-size: 14px; }
+  @media (max-width: 640px) {
+    #tzBtn { top: 60px; right: 18px; }
+  }
+
   /* ===== DECORATIVE DOTS ===== */
   .deco-dot {
     display: inline-block;
@@ -267,7 +295,7 @@
     margin-bottom: 22px;
     flex-wrap: wrap;
     gap: 10px;
-    padding-right: 130px; /* space for theme btn */
+    padding-right: 270px; /* space for theme btn + tz btn */
   }
 
   .title-group { display: flex; align-items: center; gap: 12px; }
@@ -459,6 +487,20 @@
   tbody tr.flag td { background: var(--amber-bg); }
   tbody tr.flag:hover td { background: color-mix(in srgb, var(--amber-bg) 80%, var(--bg3)); }
 
+  /* Clickable snapshot rows (new — open per-strike detail) */
+  tbody tr.clickable-row { cursor: pointer; }
+  tbody tr.clickable-row:hover td { background: var(--bg3); }
+  tbody tr.clickable-row:active td { background: var(--line); }
+  tbody tr.clickable-row td:first-child::after {
+    content: "⌕";
+    color: var(--dim2);
+    margin-left: 6px;
+    font-size: 11px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  tbody tr.clickable-row:hover td:first-child::after { opacity: 0.7; }
+
   .idx { color: var(--dim2); font-size: 12px; }
   .ts  { color: var(--cyan); }
   .delta { color: var(--dim); font-size: 12.5px; }
@@ -485,6 +527,213 @@
     color: var(--moss);
     background: var(--green-bg);
   }
+
+  /* ===== STRIKE DETAIL MODAL (new) ===== */
+  #strikeOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(20, 15, 10, 0.45);
+    backdrop-filter: blur(2px);
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  [data-theme="night"] #strikeOverlay { background: rgba(0, 0, 0, 0.6); }
+  #strikeOverlay.open { display: flex; align-items: flex-start; justify-content: center; }
+
+  #strikeModal {
+    background: var(--bg2);
+    border: 1.5px solid var(--line2);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 48px var(--shadow2);
+    max-width: 640px;
+    width: 100%;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  @media (max-width: 640px) {
+    #strikeOverlay { padding: 0; }
+    #strikeModal { max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; border: none; }
+  }
+
+  .strike-modal-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 18px 12px;
+    border-bottom: 1.5px solid var(--line);
+    background: var(--bg3);
+    flex-shrink: 0;
+  }
+  .strike-modal-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .strike-modal-sub {
+    font-size: 15px;
+    color: var(--dim2);
+    margin-top: 4px;
+  }
+  .strike-modal-close {
+    background: var(--bg2);
+    border: 1.5px solid var(--line2);
+    border-radius: 50px;
+    width: 38px; height: 38px;
+    font-size: 19px;
+    color: var(--dim);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .strike-modal-close:hover { color: var(--red); border-color: var(--red); }
+
+  .strike-modal-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    padding: 10px 18px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .strike-modal-stats .s-l { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; }
+  .strike-modal-stats .s-v { font-size: 17px; font-weight: 700; color: var(--fg); margin-top: 1px; white-space: nowrap; }
+  @media (max-width: 560px) { .strike-modal-stats { grid-template-columns: repeat(2, 1fr); } }
+
+  /* Legend / column header for the diverging bar chart */
+  .strike-list-head {
+    display: flex;
+    align-items: center;
+    padding: 8px 14px;
+    background: var(--bg3);
+    border-bottom: 1.5px solid var(--line);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--dim);
+    flex-shrink: 0;
+  }
+  .strike-list-head .slh-put  { flex: 1; text-align: right; color: var(--rose); padding-right: 10px; }
+  .strike-list-head .slh-strike { width: 96px; text-align: center; flex-shrink: 0; }
+  .strike-list-head .slh-call { flex: 1; text-align: left; color: var(--cyan); padding-left: 10px; }
+
+  .strike-modal-body {
+    overflow-y: auto;
+    padding: 2px 0 8px;
+  }
+
+  /* ===== Diverging OI bar chart — one row per strike, no wasted column space ===== */
+  .strike-row {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--line);
+    transition: background 0.1s;
+  }
+  .strike-row:hover { background: var(--bg3); }
+  .strike-row.atm { background: var(--green-bg); }
+  .strike-row.atm:hover { background: color-mix(in srgb, var(--green-bg) 75%, var(--bg3)); }
+
+  .sr-put, .sr-call {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    height: 32px;
+  }
+  .sr-put  { justify-content: flex-end; }
+  .sr-call { justify-content: flex-start; }
+
+  .sr-strike {
+    width: 96px;
+    flex-shrink: 0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.15;
+  }
+  .strike-row.atm .sr-strike { color: var(--moss); }
+  .sr-strike .sr-iv {
+    font-size: 12px;
+    color: var(--dim2);
+    font-weight: 500;
+  }
+  .sr-strike .sr-atm-dot {
+    position: absolute;
+    top: -3px;
+    font-size: 10px;
+    color: var(--moss);
+  }
+
+  .sr-bar {
+    height: 23px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    min-width: 2px;
+    max-width: 100%;
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    transition: width 0.2s ease;
+  }
+  .sr-bar.put {
+    background: linear-gradient(90deg, color-mix(in srgb, var(--rose) 55%, transparent), var(--rose));
+    justify-content: flex-start;
+    padding-left: 8px;
+    color: #fff;
+    border-radius: 5px 2px 2px 5px;
+  }
+  .sr-bar.call {
+    background: linear-gradient(90deg, var(--cyan), color-mix(in srgb, var(--cyan) 55%, transparent));
+    justify-content: flex-end;
+    padding-right: 8px;
+    color: #fff;
+    border-radius: 2px 5px 5px 2px;
+  }
+  [data-theme="night"] .sr-bar.put,
+  [data-theme="night"] .sr-bar.call { color: var(--bg); }
+
+  .sr-bar-label {
+    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
+  }
+  /* When the bar is too thin to hold its own label, print the number outside instead */
+  .sr-num-outside {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dim);
+    padding: 0 6px;
+    font-variant-numeric: tabular-nums;
+  }
+  .sr-num-outside.zero-num { color: var(--dim2); font-weight: 500; }
+
+  .strike-row.max-call .sr-bar.call { box-shadow: 0 0 0 1.5px var(--cyan); }
+  .strike-row.max-put  .sr-bar.put  { box-shadow: 0 0 0 1.5px var(--rose); }
+
+  .strike-modal-empty {
+    padding: 40px 22px;
+    text-align: center;
+    color: var(--dim);
+    font-size: 13px;
+  }
+
 
   /* ===== FOOTER ===== */
   .footer {
@@ -578,6 +827,12 @@
   <span id="themeLabel">night mode</span>
 </button>
 
+<!-- Timezone toggle — new, always visible -->
+<button id="tzBtn" onclick="toggleTz()" title="toggle timestamp timezone">
+  <span class="icon" id="tzIcon">🌐</span>
+  <span id="tzLabel">utc</span>
+</button>
+
 <!-- ===== DROP ZONE ===== -->
 <div id="dropzone" onclick="document.getElementById('fileInput').click()">
   <div class="dropzone-inner">
@@ -633,7 +888,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>fetched_at (utc)</th>
+            <th id="tsHeaderIntraday">fetched_at (utc)</th>
             <th>Δt</th>
             <th>future</th>
             <th>fut chg</th>
@@ -676,7 +931,7 @@
         <thead>
           <tr>
             <th>#</th>
-            <th>fetched_at (utc)</th>
+            <th id="tsHeaderOi">fetched_at (utc)</th>
             <th>Δt</th>
             <th>future</th>
             <th>fut chg</th>
@@ -705,6 +960,28 @@
   </div>
 </div>
 
+<!-- ===== STRIKE DETAIL MODAL (new) — click a snapshot row to see per-strike breakdown ===== -->
+<div id="strikeOverlay" onclick="if(event.target===this) closeStrikeModal()">
+  <div id="strikeModal">
+    <div class="strike-modal-head">
+      <div>
+        <div class="strike-modal-title"><span>🎯</span><span id="strikeModalTitle">strike breakdown</span></div>
+        <div class="strike-modal-sub" id="strikeModalSub"></div>
+      </div>
+      <button class="strike-modal-close" onclick="closeStrikeModal()">✕</button>
+    </div>
+    <div class="strike-modal-stats" id="strikeModalStats"></div>
+    <div class="strike-list-head">
+      <span class="slh-put">◀ put oi</span>
+      <span class="slh-strike">strike</span>
+      <span class="slh-call">call oi ▶</span>
+    </div>
+    <div class="strike-modal-body">
+      <div id="strikeTableBody"></div>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 <script>
 /* ===== THEME ===== */
@@ -721,6 +998,34 @@ function toggleTheme() {
   document.documentElement.setAttribute('data-theme', t);
   document.getElementById('themeIcon').textContent  = t === 'night' ? '☀️' : '🌙';
   document.getElementById('themeLabel').textContent = t === 'night' ? 'day mode' : 'night mode';
+})();
+
+/* ===== TZ TOGGLE (new — utc <> bkk, display-only, does not touch stored data) ===== */
+let tzMode = 'utc'; // 'utc' or 'bkk'
+
+function applyTzUI() {
+  const isBkk = tzMode === 'bkk';
+  document.getElementById('tzIcon').textContent  = isBkk ? '🇹🇭' : '🌐';
+  document.getElementById('tzLabel').textContent = isBkk ? 'bkk (utc+7)' : 'utc';
+  const introHeader = document.getElementById('tsHeaderIntraday');
+  const oiHeader = document.getElementById('tsHeaderOi');
+  if (introHeader) introHeader.textContent = isBkk ? 'fetched_at (bkk)' : 'fetched_at (utc)';
+  if (oiHeader) oiHeader.textContent = isBkk ? 'fetched_at (bkk)' : 'fetched_at (utc)';
+}
+
+function toggleTz() {
+  tzMode = tzMode === 'utc' ? 'bkk' : 'utc';
+  try { localStorage.setItem('v2v-tz', tzMode); } catch(e){}
+  applyTzUI();
+  // Re-render tables/footers with the new timezone; safe no-op if no db loaded yet
+  if (typeof db !== 'undefined' && db) {
+    try { render(); } catch(e){}
+  }
+}
+
+(function initTz() {
+  try { tzMode = localStorage.getItem('v2v-tz') || 'utc'; } catch(e){}
+  applyTzUI();
 })();
 
 /* ===== DB ===== */
@@ -811,7 +1116,23 @@ function fmtInt(v) {
   return Number(v).toLocaleString();
 }
 function fmtTs(t) {
-  return t.replace('T', ' ').replace(/\.\d+Z?$/, '').replace('+00:00', '');
+  // Original behaviour (utc, string-based) preserved as fallback.
+  const legacyUtc = () => t.replace('T', ' ').replace(/\.\d+Z?$/, '').replace('+00:00', '');
+  if (typeof tzMode === 'undefined' || tzMode === 'utc') return legacyUtc();
+
+  // BKK mode (utc+7) — new, display-only conversion.
+  try {
+    const d = new Date(t.includes('Z') || t.includes('+') ? t : t + 'Z');
+    if (isNaN(d.getTime())) return legacyUtc();
+    const bkk = new Date(d.getTime() + 7 * 3600 * 1000);
+    const pad = n => String(n).padStart(2, '0');
+    return `${bkk.getUTCFullYear()}-${pad(bkk.getUTCMonth()+1)}-${pad(bkk.getUTCDate())} ${pad(bkk.getUTCHours())}:${pad(bkk.getUTCMinutes())}:${pad(bkk.getUTCSeconds())}`;
+  } catch (e) {
+    return legacyUtc();
+  }
+}
+function tzSuffix() {
+  return (typeof tzMode !== 'undefined' && tzMode === 'bkk') ? 'bkk (utc+7)' : 'utc';
 }
 function deltaCell(curr, prev, d = 2, suffix = '') {
   if (prev === null || prev === undefined) return '<span class="zero">—</span>';
@@ -844,7 +1165,7 @@ function loadSnapshots(table, limit = 300) {
   });
 }
 
-function buildLogRowsHtml(withPc, medGap) {
+function buildLogRowsHtml(withPc, medGap, tableName) {
   return withPc.map((r, i) => {
     const p = withPc[i+1] || null;
     const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
@@ -852,7 +1173,13 @@ function buildLogRowsHtml(withPc, medGap) {
     const flag = p && gapMin > medGap * 2;
     const pc = r.pc;
 
-    return `<tr class="${flag ? 'flag' : ''}">
+    // New: make the row clickable to open the per-strike breakdown modal.
+    const tsEscaped = String(r.ts).replace(/'/g, "\\'");
+    const rowAttrs = tableName
+      ? `class="${flag ? 'flag ' : ''}clickable-row" onclick="openStrikeModal('${tableName}','${tsEscaped}')" title="click for per-strike breakdown"`
+      : `class="${flag ? 'flag' : ''}"`;
+
+    return `<tr ${rowAttrs}>
       <td class="idx num">${i === 0 ? `<span class="badge new">✿ latest</span>${withPc.length - i}` : withPc.length - i}</td>
       <td class="ts">${fmtTs(r.ts)}</td>
       <td class="delta num ${flag ? 'flagcell' : ''}">${gapStr}</td>
@@ -928,10 +1255,10 @@ function render() {
     <div class="stat"><div class="l">🕯 last fetch age</div><div class="v ${ageFlag?'down':''}">${ageMin.toFixed(0)}m</div><div class="sub">${ageFlag ? 'stale vs cadence' : 'in line'}</div></div>
   `;
 
-  document.getElementById('logBody').innerHTML = buildLogRowsHtml(withPc, medGap);
+  document.getElementById('logBody').innerHTML = buildLogRowsHtml(withPc, medGap, 'intraday');
 
   document.getElementById('footerLeft').textContent =
-    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`;
+    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} ${tzSuffix()}`;
   document.getElementById('footerRight').textContent =
     `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
 
@@ -980,12 +1307,127 @@ function renderOi() {
   gaps.sort((a,b)=>a-b);
   const medGap = gaps.length ? gaps[Math.floor(gaps.length/2)] : 0;
 
-  document.getElementById('oiBody').innerHTML = buildLogRowsHtml(withPc, medGap);
+  document.getElementById('oiBody').innerHTML = buildLogRowsHtml(withPc, medGap, 'oi');
 
   document.getElementById('footerLeftOi').textContent =
-    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} utc`;
+    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} ${tzSuffix()}`;
   document.getElementById('footerRightOi').textContent =
     `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
+}
+
+/* ===== STRIKE DETAIL MODAL (new) — per-strike breakdown for a clicked snapshot row ===== */
+function fmtPct(v, d = 2) {
+  if (v === null || v === undefined || isNaN(v)) return '-';
+  return (Number(v) * 100).toFixed(d) + '%';
+}
+
+function openStrikeModal(tableName, ts) {
+  if (!db) return;
+
+  const strikeRows = q(
+    `SELECT strike, call, put, vol_settle FROM ${tableName} WHERE fetched_at = ? ORDER BY strike ASC`,
+    [ts]
+  );
+
+  const modalBody = document.getElementById('strikeTableBody');
+  const overlay = document.getElementById('strikeOverlay');
+
+  if (!strikeRows.length) {
+    document.getElementById('strikeModalTitle').textContent = 'strike breakdown';
+    document.getElementById('strikeModalSub').textContent = fmtTs(ts) + ' ' + tzSuffix();
+    document.getElementById('strikeModalStats').innerHTML = '';
+    modalBody.innerHTML = `<div class="strike-modal-empty">no per-strike rows found for this snapshot</div>`;
+    overlay.classList.add('open');
+    document.addEventListener('keydown', escCloseStrikeModal);
+    return;
+  }
+
+  const meta = q(
+    `SELECT symbol, dte, future_price, future_chg, put_oi, call_oi, vol, vol_chg FROM ${tableName} WHERE fetched_at = ? LIMIT 1`,
+    [ts]
+  )[0] || [];
+  const [symbol, dte, futPrice, futChg, putOiTotal, callOiTotal, vol, volChg] = meta;
+
+  // ATM = strike closest to current future price
+  let atmIdx = 0, atmDiff = Infinity;
+  let maxCallIdx = 0, maxCallVal = -Infinity;
+  let maxPutIdx = 0, maxPutVal = -Infinity;
+  let maxOiForBars = 0;
+
+  strikeRows.forEach((r, idx) => {
+    const [strike, callOi, putOi] = r;
+    const diff = Math.abs(strike - futPrice);
+    if (diff < atmDiff) { atmDiff = diff; atmIdx = idx; }
+    if (callOi > maxCallVal) { maxCallVal = callOi; maxCallIdx = idx; }
+    if (putOi > maxPutVal) { maxPutVal = putOi; maxPutIdx = idx; }
+    maxOiForBars = Math.max(maxOiForBars, callOi || 0, putOi || 0);
+  });
+
+  document.getElementById('strikeModalTitle').textContent =
+    `${symbol || ''} · ${strikeRows.length} strikes`;
+  document.getElementById('strikeModalSub').textContent =
+    `snapshot ${fmtTs(ts)} ${tzSuffix()} · ${tableName} table`;
+
+  document.getElementById('strikeModalStats').innerHTML = `
+    <div><div class="s-l">future</div><div class="s-v">${fmtNum(futPrice,1)}</div></div>
+    <div><div class="s-l">dte</div><div class="s-v">${fmtNum(dte,2)}</div></div>
+    <div><div class="s-l">vol (settle avg)</div><div class="s-v">${fmtNum(vol,2)}</div></div>
+    <div><div class="s-l">put/call oi total</div><div class="s-v">${fmtInt(putOiTotal)} / ${fmtInt(callOiTotal)}</div></div>
+  `;
+
+  // Build a compact diverging bar for each side. Bars wide enough to hold
+  // their own number get it printed inside (white, bold); thin/zero bars
+  // print the number just outside so nothing is ever unreadable.
+  function sideCell(side, oi, pct) {
+    const val = oi || 0;
+    if (!val) return `<span class="sr-num-outside zero-num">0</span>`;
+    const label = fmtInt(val);
+    if (pct < 16) {
+      const stub = `<span class="sr-bar ${side}" style="width:6px"></span>`;
+      const num = `<span class="sr-num-outside">${label}</span>`;
+      return side === 'put' ? num + stub : stub + num;
+    }
+    return `<span class="sr-bar ${side}" style="width:${pct}%"><span class="sr-bar-label">${label}</span></span>`;
+  }
+
+  modalBody.innerHTML = strikeRows.map((r, idx) => {
+    const [strike, callOi, putOi, volSettle] = r;
+    const callPct = maxOiForBars ? Math.round((callOi || 0) / maxOiForBars * 100) : 0;
+    const putPct  = maxOiForBars ? Math.round((putOi || 0) / maxOiForBars * 100) : 0;
+    const rowClasses = [
+      idx === atmIdx ? 'atm' : '',
+      idx === maxCallIdx && maxCallVal > 0 ? 'max-call' : '',
+      idx === maxPutIdx && maxPutVal > 0 ? 'max-put' : ''
+    ].filter(Boolean).join(' ');
+
+    return `<div class="strike-row ${rowClasses}" ${idx === atmIdx ? 'id="srAtmRow"' : ''}>
+      <div class="sr-put">${sideCell('put', putOi, putPct)}</div>
+      <div class="sr-strike">
+        ${idx === atmIdx ? '<span class="sr-atm-dot">◆</span>' : ''}
+        <span>${fmtNum(strike, 0)}</span>
+        <span class="sr-iv">${fmtPct(volSettle, 1)}</span>
+      </div>
+      <div class="sr-call">${sideCell('call', callOi, callPct)}</div>
+    </div>`;
+  }).join('');
+
+  overlay.classList.add('open');
+  document.addEventListener('keydown', escCloseStrikeModal);
+
+  // Center the view on the ATM strike so mobile users land right where the action is.
+  requestAnimationFrame(() => {
+    const atmEl = document.getElementById('srAtmRow');
+    if (atmEl) atmEl.scrollIntoView({ block: 'center' });
+  });
+}
+
+function closeStrikeModal() {
+  document.getElementById('strikeOverlay').classList.remove('open');
+  document.removeEventListener('keydown', escCloseStrikeModal);
+}
+
+function escCloseStrikeModal(e) {
+  if (e.key === 'Escape') closeStrikeModal();
 }
 </script>
 </body>
