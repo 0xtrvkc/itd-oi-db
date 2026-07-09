@@ -1,14 +1,39 @@
 import hashlib
+import os
 import sqlite3
+import sys
+import time
 import requests
 import re
 from datetime import datetime, timezone
 
-URLS = {
-    "intraday": "https://raw.githubusercontent.com/pageth/Vol2VolData/main/IntradayData.txt",
-    "oi":       "https://raw.githubusercontent.com/pageth/Vol2VolData/main/OIData.txt",
+# --- source repo (owner/name/branch) whose files we're polling ---
+SOURCE_REPO   = "pageth/Vol2VolData"
+SOURCE_BRANCH = "main"
+FILES = {
+    "intraday": "IntradayData.txt",
+    "oi":       "OIData.txt",
 }
+
+def api_url(path: str) -> str:
+    return f"https://api.github.com/repos/{SOURCE_REPO}/contents/{path}?ref={SOURCE_BRANCH}"
+
+URLS = {source: api_url(path) for source, path in FILES.items()}
+
+# GitHub Actions injects this automatically as secrets.GITHUB_TOKEN.
+# It's plenty for reading a public repo's contents via the API.
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+
+HEADERS_BASE = {
+    "Accept": "application/vnd.github.raw+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+    "User-Agent": "itd-oi-db-fetcher (+https://github.com/0xtrvkc/itd-oi-db)",
+}
+if GITHUB_TOKEN:
+    HEADERS_BASE["Authorization"] = f"Bearer {GITHUB_TOKEN}"
+
 DB_PATH = "data/vol2vol.db"
+MAX_RETRIES = 3
 
 # Both IntradayData.txt and OIData.txt share the exact same layout:
 #   line 0: "<symbol> (<dte> DTE) vs <price> (<chg>) - <label>"
@@ -47,7 +72,28 @@ def init_db(conn):
             fetched_at   DATETIME,
             was_new      INTEGER
         );
+
+        CREATE TABLE IF NOT EXISTS etag_cache (
+            source TEXT PRIMARY KEY,
+            etag   TEXT
+        );
     """)
+    conn.commit()
+
+
+def get_cached_etag(conn, source: str):
+    row = conn.execute(
+        "SELECT etag FROM etag_cache WHERE source=?", (source,)
+    ).fetchone()
+    return row[0] if row else None
+
+
+def set_cached_etag(conn, source: str, etag: str):
+    conn.execute(
+        "INSERT INTO etag_cache (source, etag) VALUES (?, ?) "
+        "ON CONFLICT(source) DO UPDATE SET etag=excluded.etag",
+        (source, etag),
+    )
     conn.commit()
 
 
@@ -105,27 +151,68 @@ def parse_snapshot(text: str) -> dict:
     }
 
 
-def fetch_fresh(url: str) -> str:
-    """
-    GitHub's raw.githubusercontent.com is fronted by a CDN (Fastly) that can
-    serve a cached copy of the file for a while after the origin content has
-    changed. A plain requests.get() can therefore return stale bytes, which
-    makes our content-hash dedup falsely think "nothing changed" even when
-    the upstream source has moved on.
+class NotModified(Exception):
+    """Raised when the server confirms nothing changed (HTTP 304)."""
 
-    We defeat this by:
-      1. Appending a unique cache-busting query param, so the CDN treats
-         each request as a distinct URL (cache miss).
-      2. Sending no-cache headers as a secondary precaution.
+
+def fetch_fresh(url: str, etag: str | None) -> tuple[str, str | None]:
     """
-    resp = requests.get(
-        url,
-        params={"t": int(datetime.now(timezone.utc).timestamp() * 1000)},
-        headers={"Cache-Control": "no-cache", "Pragma": "no-cache"},
-        timeout=10,
-    )
-    resp.raise_for_status()
-    return resp.text
+    Fetches a file via the authenticated GitHub Contents API using a
+    conditional request (If-None-Match). This replaces the old approach of
+    appending a random cache-busting query param to defeat CDN caching.
+
+    Why: a unique URL on every request, fired every few minutes from CI
+    runner IPs, is exactly the pattern GitHub's abuse-detection flags as
+    scraping -> 429. A conditional request is the opposite signal: it's a
+    well-behaved client that mostly gets back a cheap "304 Not Modified"
+    instead of re-downloading the file, and it runs against the API's much
+    higher authenticated rate limit rather than the raw CDN.
+
+    Returns (text, new_etag). Raises NotModified if the content is unchanged.
+    """
+    headers = dict(HEADERS_BASE)
+    if etag:
+        headers["If-None-Match"] = etag
+
+    last_exc = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        resp = requests.get(url, headers=headers, timeout=10)
+
+        if resp.status_code == 304:
+            raise NotModified()
+
+        if resp.status_code == 200:
+            return resp.text, resp.headers.get("ETag")
+
+        if resp.status_code == 403 or resp.status_code == 429:
+            # Rate limited (or momentarily blocked). Respect whatever the
+            # server tells us to wait, falling back to simple backoff.
+            retry_after = resp.headers.get("Retry-After")
+            reset = resp.headers.get("X-RateLimit-Reset")
+            if retry_after:
+                wait = float(retry_after)
+            elif reset:
+                wait = max(0.0, float(reset) - time.time())
+            else:
+                wait = 2 ** attempt  # 2s, 4s, 8s
+            print(f"  rate limited (attempt {attempt}/{MAX_RETRIES}), "
+                  f"waiting {wait:.0f}s", file=sys.stderr)
+            time.sleep(min(wait, 60))
+            last_exc = requests.HTTPError(f"{resp.status_code} on {url}")
+            continue
+
+        # Any other error (5xx etc.) - short backoff and retry.
+        if 500 <= resp.status_code < 600:
+            wait = 2 ** attempt
+            print(f"  server error {resp.status_code} (attempt "
+                  f"{attempt}/{MAX_RETRIES}), waiting {wait}s", file=sys.stderr)
+            time.sleep(wait)
+            last_exc = requests.HTTPError(f"{resp.status_code} on {url}")
+            continue
+
+        resp.raise_for_status()  # anything unexpected -> raise immediately
+
+    raise last_exc or RuntimeError(f"failed to fetch {url}")
 
 
 def store_snapshot(conn, table: str, now: str, parsed: dict):
@@ -154,11 +241,18 @@ def run():
     TABLES = {"intraday": "intraday", "oi": "oi"}
 
     for source, url in URLS.items():
+        cached_etag = get_cached_etag(conn, source)
         try:
-            text = fetch_fresh(url)
+            text, new_etag = fetch_fresh(url, cached_etag)
+        except NotModified:
+            print(f"[{source}] 304 NOT MODIFIED — skipped (no download needed)")
+            continue
         except Exception as e:
             print(f"[{source}] FETCH ERROR: {e}")
             continue
+
+        if new_etag:
+            set_cached_etag(conn, source, new_etag)
 
         h    = get_hash(text)
         last = get_last_hash(conn, source)
