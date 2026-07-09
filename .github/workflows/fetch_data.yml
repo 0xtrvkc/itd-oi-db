@@ -22,6 +22,8 @@ jobs:
         run: pip install requests
 
       - name: Run fetch script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python scripts/fetch_and_store.py
 
       - name: Commit updated DB
