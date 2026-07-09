@@ -317,6 +317,20 @@
     margin-top: 1px;
   }
 
+  /* ===== FROZEN PAGE HEADER (new) — topbar + stats + tabs stick together while scrolling ===== */
+  #pageHeader {
+    position: sticky;
+    top: 0;
+    z-index: 400;
+    background: var(--bg);
+    padding-top: 4px;
+    padding-bottom: 6px;
+  }
+  #pageHeader.scrolled {
+    box-shadow: 0 6px 16px var(--shadow);
+    border-bottom: 1.5px solid var(--line);
+  }
+
   .topbar-right {
     display: flex;
     flex-direction: column;
@@ -451,7 +465,7 @@
 
   thead th {
     position: sticky;
-    top: 0;
+    top: var(--sticky-offset, 0px);
     background: var(--bg3);
     color: var(--dim);
     text-align: right;
@@ -463,6 +477,7 @@
     font-size: 11px;
     white-space: nowrap;
     z-index: 10;
+    box-shadow: 0 2px 6px var(--shadow);
   }
   thead th:first-child { border-radius: var(--radius) 0 0 0; }
   thead th:last-child  { border-radius: 0 var(--radius) 0 0; }
@@ -527,6 +542,42 @@
     color: var(--moss);
     background: var(--green-bg);
   }
+
+  /* ===== DAY GROUPING (new) — separates rows by calendar day with a label + alternating tint ===== */
+  tbody tr.day-divider td {
+    background: var(--bg3);
+    color: var(--dim);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    padding: 6px 11px;
+    border-bottom: 1.5px solid var(--line2);
+    border-top: 1.5px solid var(--line2);
+    text-align: left;
+    white-space: nowrap;
+  }
+  tbody tr.day-divider:first-child td { border-top: none; }
+  tbody tr.day-divider:hover td { background: var(--bg3); }
+  .day-divider-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--moss);
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  tbody tr.day-0 td { background: color-mix(in srgb, var(--moss) 5%, transparent); }
+  tbody tr.day-1 td { background: color-mix(in srgb, var(--lavender) 8%, transparent); }
+  tbody tr.day-0.flag td { background: var(--amber-bg); }
+  tbody tr.day-1.flag td { background: var(--amber-bg); }
+  tbody tr.day-0:hover td,
+  tbody tr.day-1:hover td,
+  tbody tr.day-0.flag:hover td,
+  tbody tr.day-1.flag:hover td { background: var(--bg3); }
+  tbody tr.day-0.flag:hover td,
+  tbody tr.day-1.flag:hover td { background: color-mix(in srgb, var(--amber-bg) 80%, var(--bg3)); }
 
   /* ===== STRIKE DETAIL MODAL (new) ===== */
   #strikeOverlay {
@@ -849,28 +900,30 @@
 
 <!-- ===== APP ===== -->
 <div id="app">
-  <div class="topbar">
-    <div class="title-group">
-      <span class="title-icon">🍄</span>
-      <div>
-        <div class="title">vol2vol<span class="tick"> ✿ </span>log</div>
-        <div class="title-tagline">options flow snapshot viewer</div>
+  <div id="pageHeader">
+    <div class="topbar">
+      <div class="title-group">
+        <span class="title-icon">🍄</span>
+        <div>
+          <div class="title">vol2vol<span class="tick"> ✿ </span>log</div>
+          <div class="title-tagline">options flow snapshot viewer</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="meta-pill" id="topmeta"></div>
       </div>
     </div>
-    <div class="topbar-right">
-      <div class="meta-pill" id="topmeta"></div>
+
+    <div class="stats" id="statsBar"></div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tabBtnIntraday" onclick="switchTab('intraday')">
+        📈 intraday <span class="tab-count" id="tabCountIntraday"></span>
+      </button>
+      <button class="tab-btn" id="tabBtnOi" onclick="switchTab('oi')">
+        🍂 open interest <span class="tab-count" id="tabCountOi"></span>
+      </button>
     </div>
-  </div>
-
-  <div class="stats" id="statsBar"></div>
-
-  <div class="tabs">
-    <button class="tab-btn active" id="tabBtnIntraday" onclick="switchTab('intraday')">
-      📈 intraday <span class="tab-count" id="tabCountIntraday"></span>
-    </button>
-    <button class="tab-btn" id="tabBtnOi" onclick="switchTab('oi')">
-      🍂 open interest <span class="tab-count" id="tabCountOi"></span>
-    </button>
   </div>
 
   <!-- ===== INTRADAY VIEW ===== -->
@@ -1107,6 +1160,20 @@ async function loadFileManual(file) {
 // Auto-load on page open
 autoLoad();
 
+/* ===== FROZEN HEADER OFFSET (new) — keeps sticky table headers pinned just below the sticky pageHeader ===== */
+function updateStickyOffset() {
+  const header = document.getElementById('pageHeader');
+  if (!header) return;
+  const h = header.getBoundingClientRect().height;
+  document.documentElement.style.setProperty('--sticky-offset', h + 'px');
+}
+window.addEventListener('resize', updateStickyOffset);
+window.addEventListener('load', updateStickyOffset);
+window.addEventListener('scroll', () => {
+  const header = document.getElementById('pageHeader');
+  if (header) header.classList.toggle('scrolled', window.scrollY > 4);
+}, { passive: true });
+
 function fmtNum(v, d = 2) {
   if (v === null || v === undefined) return '-';
   return Number(v).toFixed(d);
@@ -1166,6 +1233,9 @@ function loadSnapshots(table, limit = 300) {
 }
 
 function buildLogRowsHtml(withPc, medGap, tableName) {
+  let lastDay = null;
+  let dayParity = 0;
+
   return withPc.map((r, i) => {
     const p = withPc[i+1] || null;
     const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
@@ -1173,15 +1243,25 @@ function buildLogRowsHtml(withPc, medGap, tableName) {
     const flag = p && gapMin > medGap * 2;
     const pc = r.pc;
 
+    // New: separate rows into calendar-day groups with a divider label + alternating tint.
+    const tsFormatted = fmtTs(r.ts);
+    const dayKey = tsFormatted.split(' ')[0];
+    let dividerHtml = '';
+    if (dayKey !== lastDay) {
+      if (lastDay !== null) dayParity = 1 - dayParity;
+      lastDay = dayKey;
+      dividerHtml = `<tr class="day-divider"><td colspan="15"><span class="day-divider-dot"></span>${dayKey}</td></tr>`;
+    }
+
     // New: make the row clickable to open the per-strike breakdown modal.
     const tsEscaped = String(r.ts).replace(/'/g, "\\'");
     const rowAttrs = tableName
-      ? `class="${flag ? 'flag ' : ''}clickable-row" onclick="openStrikeModal('${tableName}','${tsEscaped}')" title="click for per-strike breakdown"`
-      : `class="${flag ? 'flag' : ''}"`;
+      ? `class="${flag ? 'flag ' : ''}day-${dayParity} clickable-row" onclick="openStrikeModal('${tableName}','${tsEscaped}')" title="click for per-strike breakdown"`
+      : `class="${flag ? 'flag ' : ''}day-${dayParity}"`;
 
-    return `<tr ${rowAttrs}>
+    return `${dividerHtml}<tr ${rowAttrs}>
       <td class="idx num">${i === 0 ? `<span class="badge new">✿ latest</span>${withPc.length - i}` : withPc.length - i}</td>
-      <td class="ts">${fmtTs(r.ts)}</td>
+      <td class="ts">${tsFormatted}</td>
       <td class="delta num ${flag ? 'flagcell' : ''}">${gapStr}</td>
       <td class="num">${fmtNum(r.fut,1)}</td>
       <td class="num ${r.futChg>0?'up':r.futChg<0?'down':'zero'}">${r.futChg>0?'+':''}${fmtNum(r.futChg,1)}</td>
@@ -1265,6 +1345,7 @@ function render() {
   document.getElementById('tabCountIntraday').textContent = `${totalSnaps}`;
 
   renderOi();
+  requestAnimationFrame(updateStickyOffset);
 }
 
 function switchTab(name) {
@@ -1273,6 +1354,7 @@ function switchTab(name) {
   document.getElementById('viewOi').classList.toggle('active', !isIntraday);
   document.getElementById('tabBtnIntraday').classList.toggle('active', isIntraday);
   document.getElementById('tabBtnOi').classList.toggle('active', !isIntraday);
+  requestAnimationFrame(updateStickyOffset);
 }
 
 function renderOi() {
