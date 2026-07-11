@@ -759,6 +759,31 @@
   .strike-modal-stats .s-v { font-size: 17px; font-weight: 700; color: var(--fg); margin-top: 1px; white-space: nowrap; }
   @media (max-width: 560px) { .strike-modal-stats { grid-template-columns: repeat(2, 1fr); } }
 
+  /* ---- lowest-vol strike — pachinko strobe highlight in the strike list ---- */
+  .strike-row.min-vol {
+    animation: pachinkoRow 0.85s steps(1) infinite;
+    position: relative;
+  }
+  .strike-row.min-vol .sr-strike {
+    box-shadow: inset 0 0 0 2px var(--red);
+    border-radius: 6px;
+  }
+  .strike-row.min-vol .sr-iv {
+    color: var(--red) !important;
+    font-weight: 800 !important;
+    text-shadow: 0 0 6px rgba(192, 96, 74, 0.5);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .min-vol-dot {
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--red);
+    animation: dtePulse 1.4s ease-in-out infinite;
+  }
+
   /* Legend / column header for the diverging bar chart */
   .strike-list-head {
     display: flex;
@@ -1564,14 +1589,16 @@ function openStrikeModal(tableName, ts) {
   let atmIdx = 0, atmDiff = Infinity;
   let maxCallIdx = 0, maxCallVal = -Infinity;
   let maxPutIdx = 0, maxPutVal = -Infinity;
+  let minVolIdx = -1, minVolVal = Infinity;
   let maxOiForBars = 0;
 
   strikeRows.forEach((r, idx) => {
-    const [strike, callOi, putOi] = r;
+    const [strike, callOi, putOi, volSettle] = r;
     const diff = Math.abs(strike - futPrice);
     if (diff < atmDiff) { atmDiff = diff; atmIdx = idx; }
     if (callOi > maxCallVal) { maxCallVal = callOi; maxCallIdx = idx; }
     if (putOi > maxPutVal) { maxPutVal = putOi; maxPutIdx = idx; }
+    if (volSettle != null && !isNaN(volSettle) && volSettle > 0 && volSettle < minVolVal) { minVolVal = volSettle; minVolIdx = idx; }
     maxOiForBars = Math.max(maxOiForBars, callOi || 0, putOi || 0);
   });
 
@@ -1606,18 +1633,24 @@ function openStrikeModal(tableName, ts) {
     const [strike, callOi, putOi, volSettle] = r;
     const callPct = maxOiForBars ? Math.round((callOi || 0) / maxOiForBars * 100) : 0;
     const putPct  = maxOiForBars ? Math.round((putOi || 0) / maxOiForBars * 100) : 0;
+    const isMinVol = idx === minVolIdx && minVolVal < Infinity;
     const rowClasses = [
       idx === atmIdx ? 'atm' : '',
       idx === maxCallIdx && maxCallVal > 0 ? 'max-call' : '',
-      idx === maxPutIdx && maxPutVal > 0 ? 'max-put' : ''
+      idx === maxPutIdx && maxPutVal > 0 ? 'max-put' : '',
+      isMinVol ? 'min-vol' : ''
     ].filter(Boolean).join(' ');
+    const ivDigits = isMinVol ? 4 : 1;
+    const ivContent = isMinVol
+      ? `<span class="min-vol-dot"></span>${fmtPct(volSettle, ivDigits)}`
+      : fmtPct(volSettle, ivDigits);
 
     return `<div class="strike-row ${rowClasses}" ${idx === atmIdx ? 'id="srAtmRow"' : ''}>
       <div class="sr-put">${sideCell('put', putOi, putPct)}</div>
       <div class="sr-strike">
         ${idx === atmIdx ? '<span class="sr-atm-dot">◆</span>' : ''}
         <span>${fmtNum(strike, 0)}</span>
-        <span class="sr-iv">${fmtPct(volSettle, 1)}</span>
+        <span class="sr-iv">${ivContent}</span>
       </div>
       <div class="sr-call">${sideCell('call', callOi, callPct)}</div>
     </div>`;
