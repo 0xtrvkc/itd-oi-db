@@ -178,13 +178,6 @@
     100% { outline: 3px solid transparent; outline-offset: -3px; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    #jumpDteBtn,
-    #jumpDteBtn .jump-icon {
-      animation: none !important;
-    }
-  }
-
   /* ===== TZ TOGGLE (new) ===== */
   #tzBtn {
     position: fixed;
@@ -643,15 +636,6 @@
   @keyframes mushroomBounce {
     0%   { transform: translateX(-6px) scaleX(1) rotate(-8deg); }
     100% { transform: translateX(6px) scaleX(-1) rotate(8deg); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    tbody tr.dte-hot td,
-    tbody tr.dte-hot td:first-child,
-    .dte-hot-dot,
-    .mushroom-shuttle span {
-      animation: none !important;
-    }
   }
 
   /* Clickable snapshot rows (new — open per-strike detail) */
