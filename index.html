@@ -109,49 +109,48 @@
   }
   #themeBtn .icon { font-size: 15px; }
 
-  /* ===== JUMP TO 0.99 DTE — big ass floating button ===== */
+  /* ===== JUMP TO 0.99 DTE — big ass floating button, roams the screen ===== */
   #jumpDteBtn {
     position: fixed;
     left: 50%;
-    bottom: 26px;
-    transform: translateX(-50%);
+    top: calc(100vh - 110px);
     z-index: 1000;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 16px 30px;
+    gap: 14px;
+    padding: 26px 48px;
     border: none;
-    border-radius: 60px;
+    border-radius: 80px;
     cursor: pointer;
     font-family: var(--mono);
     font-weight: 800;
-    font-size: 16px;
-    letter-spacing: 0.3px;
+    font-size: 24px;
+    letter-spacing: 0.4px;
     color: #3a1a10;
     background: linear-gradient(135deg, #FFD93D, #FF6B6B 55%, #FF8FA3);
     background-size: 220% 220%;
-    box-shadow: 0 6px 18px rgba(192, 96, 74, 0.45), 0 0 0 0 rgba(255, 107, 107, 0.6);
+    box-shadow: 0 10px 30px rgba(192, 96, 74, 0.5), 0 0 0 0 rgba(255, 107, 107, 0.6);
     animation: jumpBtnPulse 1.1s ease-in-out infinite, jumpBtnGradient 2.4s ease infinite;
+    transition: left 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95), top 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95), transform 0.2s ease;
   }
   #jumpDteBtn:hover {
-    animation-play-state: paused;
-    transform: translateX(-50%) scale(1.06);
-    box-shadow: 0 8px 24px rgba(192, 96, 74, 0.6);
+    transform: scale(1.08);
+    box-shadow: 0 12px 34px rgba(192, 96, 74, 0.65);
   }
   #jumpDteBtn:active {
-    transform: translateX(-50%) scale(0.96);
+    transform: scale(0.94);
   }
   #jumpDteBtn .jump-icon {
-    font-size: 20px;
+    font-size: 28px;
     display: inline-block;
     animation: jumpIconWiggle 0.6s ease-in-out infinite;
   }
   #jumpDteBtn.no-target {
-    animation: jumpBtnShake 0.45s ease-in-out;
+    animation: jumpBtnPulse 1.1s ease-in-out infinite, jumpBtnGradient 2.4s ease infinite, jumpBtnShake 0.45s ease-in-out;
   }
   @keyframes jumpBtnPulse {
-    0%, 100% { box-shadow: 0 6px 18px rgba(192, 96, 74, 0.45), 0 0 0 0 rgba(255, 107, 107, 0.55); }
-    50%      { box-shadow: 0 6px 22px rgba(192, 96, 74, 0.55), 0 0 0 14px rgba(255, 107, 107, 0); }
+    0%, 100% { box-shadow: 0 10px 30px rgba(192, 96, 74, 0.5), 0 0 0 0 rgba(255, 107, 107, 0.55); }
+    50%      { box-shadow: 0 10px 34px rgba(192, 96, 74, 0.6), 0 0 0 18px rgba(255, 107, 107, 0); }
   }
   @keyframes jumpBtnGradient {
     0%, 100% { background-position: 0% 50%; }
@@ -162,11 +161,11 @@
     50%      { transform: translateY(-3px) rotate(6deg); }
   }
   @keyframes jumpBtnShake {
-    0%, 100% { transform: translateX(-50%) rotate(0); }
-    20%      { transform: translateX(-53%) rotate(-3deg); }
-    40%      { transform: translateX(-47%) rotate(3deg); }
-    60%      { transform: translateX(-53%) rotate(-2deg); }
-    80%      { transform: translateX(-47%) rotate(2deg); }
+    0%, 100% { transform: rotate(0); }
+    20%      { transform: translateX(-6px) rotate(-4deg); }
+    40%      { transform: translateX(6px) rotate(4deg); }
+    60%      { transform: translateX(-5px) rotate(-3deg); }
+    80%      { transform: translateX(5px) rotate(3deg); }
   }
 
   /* Landing flash when a row is scrolled to */
@@ -1210,6 +1209,28 @@ function jumpToDteHot() {
   target.classList.add('dte-landed');
   setTimeout(() => target.classList.remove('dte-landed'), 1900);
 }
+
+/* ---- jump button roams randomly around the viewport ---- */
+(function floatJumpBtn() {
+  const btn = document.getElementById('jumpDteBtn');
+  if (!btn) return;
+  const margin = 16;
+
+  function moveRandom() {
+    const w = btn.offsetWidth || 260;
+    const h = btn.offsetHeight || 90;
+    const maxX = Math.max(margin, window.innerWidth - w - margin);
+    const maxY = Math.max(margin, window.innerHeight - h - margin);
+    const x = margin + Math.random() * (maxX - margin);
+    const y = margin + Math.random() * (maxY - margin);
+    btn.style.left = x + 'px';
+    btn.style.top = y + 'px';
+  }
+
+  moveRandom();
+  setInterval(moveRandom, 2400);
+  window.addEventListener('resize', moveRandom);
+})();
 
 /* ===== DB ===== */
 let db;
