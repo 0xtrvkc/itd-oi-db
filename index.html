@@ -1009,9 +1009,9 @@
 </button>
 
 <!-- Jump to 0.99 dte row — big ass button -->
-<button id="jumpDteBtn" onclick="jumpToDteHot()" title="scroll to the 0.99 dte row">
+<button id="jumpDteBtn" onclick="jumpToDteHot()" title="scroll to the nearest-expiry (lowest dte) row">
   <span class="jump-icon">🍄</span>
-  <span>JUMP TO 0.99 DTE</span>
+  <span class="jump-label">JUMP TO DTE</span>
   <span class="jump-icon">🍄</span>
 </button>
 
@@ -1183,7 +1183,7 @@ function toggleTheme() {
 })();
 
 /* ===== TZ TOGGLE (new — utc <> bkk, display-only, does not touch stored data) ===== */
-let tzMode = 'utc'; // 'utc' or 'bkk'
+let tzMode = 'utc'; // 'utc' or 'bkk' — utc is the default; bkk toggle stays available
 
 function applyTzUI() {
   const isBkk = tzMode === 'bkk';
@@ -1212,7 +1212,10 @@ function toggleTz() {
 
 function jumpToDteHot() {
   const btn = document.getElementById('jumpDteBtn');
-  const target = document.querySelector('tbody tr.dte-hot');
+  // Prefer a hot row in whichever tab is currently active, fall back to any hot row.
+  const activeView = document.querySelector('.view.active');
+  const target = (activeView && activeView.querySelector('tbody tr.dte-hot'))
+    || document.querySelector('tbody tr.dte-hot');
 
   if (!target) {
     // nothing to jump to yet — shake the button to say so
@@ -1225,6 +1228,12 @@ function jumpToDteHot() {
     return;
   }
 
+  // If the hottest row lives in the other tab, switch to it first.
+  const ownerView = target.closest('.view');
+  if (ownerView && !ownerView.classList.contains('active')) {
+    switchTab(ownerView.id === 'viewOi' ? 'oi' : 'intraday');
+  }
+
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   // extra flash on landing so the eye finds it immediately
@@ -1233,6 +1242,77 @@ function jumpToDteHot() {
   void target.offsetWidth;
   target.classList.add('dte-landed');
   setTimeout(() => target.classList.remove('dte-landed'), 1900);
+}
+
+/* ---- dynamic "nearest expiry" tracking — replaces the old hardcoded 0.99 dte check ---- */
+let currentMinDte = null; // today's anchor dte (value at the first fetch of the current UTC date)
+let currentMinDteDate = null; // that anchor's UTC calendar date, 'YYYY-MM-DD' — required so we don't
+                               // cross-match a coincidentally-identical dte value from a different day
+
+function computeMinDte() {
+  // "Today" = the current UTC calendar date (fetched_at is stored in UTC). Within
+  // that date, dte counts down fetch-by-fetch through the day, so the value at the
+  // START of today (the highest dte recorded on this date) is "today's dte" —
+  // not whatever the running countdown has decayed to by right now.
+  let latestTs = null;
+  ['intraday', 'oi'].forEach(t => {
+    const check = q(`SELECT name FROM sqlite_master WHERE type='table' AND name='${t}'`);
+    if (!check.length) return;
+    const row = q(`SELECT MAX(fetched_at) FROM ${t}`);
+    const ts = row.length ? row[0][0] : null;
+    if (ts && (latestTs === null || ts > latestTs)) latestTs = ts;
+  });
+  if (!latestTs) return { minVal: null, minTs: null };
+
+  const dayPrefix = latestTs.slice(0, 10); // 'YYYY-MM-DD', UTC
+
+  let minVal = null, minTs = null;
+  ['intraday', 'oi'].forEach(t => {
+    const check = q(`SELECT name FROM sqlite_master WHERE type='table' AND name='${t}'`);
+    if (!check.length) return;
+    const rows = q(
+      `SELECT dte, fetched_at FROM ${t} WHERE dte IS NOT NULL AND dte >= 0 AND substr(fetched_at, 1, 10) = ? ORDER BY dte DESC, fetched_at ASC LIMIT 1`,
+      [dayPrefix]
+    );
+    if (rows.length) {
+      const [dte, ts] = rows[0];
+      if (minVal === null || dte > minVal) { minVal = dte; minTs = ts; }
+    }
+  });
+  return { minVal, minTs };
+}
+
+function expiryDateStr(ts, dte) {
+  if (ts == null || dte == null) return null;
+  try {
+    const base = new Date(ts.includes('Z') || ts.includes('+') ? ts : ts + 'Z');
+    if (isNaN(base.getTime())) return null;
+    let expiry = new Date(base.getTime() + dte * 86400000);
+    if (typeof tzMode !== 'undefined' && tzMode === 'bkk') {
+      expiry = new Date(expiry.getTime() + 7 * 3600 * 1000);
+    }
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${months[expiry.getUTCMonth()]} ${expiry.getUTCDate()}`;
+  } catch (e) {
+    return null;
+  }
+}
+
+function updateJumpButton() {
+  const { minVal, minTs } = computeMinDte();
+  currentMinDte = minVal;
+  currentMinDteDate = minTs ? minTs.slice(0, 10) : null;
+  const labelEl = document.querySelector('#jumpDteBtn .jump-label');
+  const btn = document.getElementById('jumpDteBtn');
+  if (!labelEl) return;
+  if (minVal === null) {
+    labelEl.textContent = 'JUMP TO DTE';
+    if (btn) btn.title = 'no dte data loaded yet';
+    return;
+  }
+  const dateStr = expiryDateStr(minTs, minVal);
+  labelEl.textContent = `JUMP TO ${minVal.toFixed(2)} DTE${dateStr ? ' · ' + dateStr : ''}`;
+  if (btn) btn.title = `scroll to the nearest-expiry row (dte ${minVal.toFixed(2)}${dateStr ? ', ' + dateStr : ''})`;
 }
 
 /* ---- jump button roams randomly around the viewport ---- */
@@ -1402,8 +1482,12 @@ function buildLogRowsHtml(withPc, medGap, tableName) {
     const flag = p && gapMin > medGap * 2;
     const pc = r.pc;
 
-    // dte ~ 0.99 == expiring today / 0DTE-ish — flag it visually.
-    const isDteHot = r.dte != null && Math.abs(r.dte - 0.99) < 0.005;
+    // Today's dte value AND today's date, both required — otherwise the last fetch of the
+    // previous day (right before midnight, often numerically identical) gets flagged too.
+    const rowDate = typeof r.ts === 'string' ? r.ts.slice(0, 10) : null;
+    const isDteHot = r.dte != null && currentMinDte != null
+      && Math.abs(r.dte - currentMinDte) < 0.005
+      && rowDate === currentMinDteDate;
     const dteCell = isDteHot
       ? `<span class="dte-hot-cell"><span class="dte-hot-dot"></span>${fmtNum(r.dte,2)}<span class="mushroom-shuttle"><span>🍄</span><span>🍄</span><span>🍄</span><span>🍄</span></span></span>`
       : fmtNum(r.dte,2);
@@ -1439,6 +1523,10 @@ function buildLogRowsHtml(withPc, medGap, tableName) {
 function render() {
   const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
   if (!check.length) return;
+
+  // Figure out the current lowest dte (across intraday + oi) before building any rows,
+  // so both tables' "hot" highlighting and the jump button stay in sync with it.
+  updateJumpButton();
 
   const withPc = loadSnapshots('intraday', 300);
   if (!withPc.length) return;
