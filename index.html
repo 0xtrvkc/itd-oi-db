@@ -1244,42 +1244,66 @@ function jumpToDteHot() {
   setTimeout(() => target.classList.remove('dte-landed'), 1900);
 }
 
-/* ---- dynamic "nearest expiry" tracking — replaces the old hardcoded 0.99 dte check ---- */
-let currentMinDte = null; // today's anchor dte (value at the first fetch of the current UTC date)
-let currentMinDteDate = null; // that anchor's UTC calendar date, 'YYYY-MM-DD' — required so we don't
-                               // cross-match a coincidentally-identical dte value from a different day
+/* ---- dynamic "current contract" tracking ----
+   dte doesn't run once per calendar day — it counts down from ~1 (or whatever
+   the fresh value happens to be, not always exactly 1.00) to ~0, then RESETS
+   back up when the next contract starts, and this can loop multiple times
+   within the same UTC date. Anchoring off "the highest dte seen on today's
+   calendar date" breaks in that world. Instead we detect the most recent
+   reset directly: walk backwards in time from the latest fetch and keep
+   climbing as long as dte is non-decreasing (still the same, still-current
+   contract) — the moment dte drops going further back, we've crossed into
+   the previous contract's tail end, so we stop. Whatever we landed on is the
+   start-of-current-contract row: the freshest anchor, guaranteed recent. */
+let currentDteAnchorVal = null; // dte value at the start of the current (most recent) contract cycle
+let currentDteAnchorTs = null;  // that row's exact fetched_at — used to highlight this exact row
 
-function computeMinDte() {
-  // "Today" = the current UTC calendar date (fetched_at is stored in UTC). Within
-  // that date, dte counts down fetch-by-fetch through the day, so the value at the
-  // START of today (the highest dte recorded on this date) is "today's dte" —
-  // not whatever the running countdown has decayed to by right now.
-  let latestTs = null;
+function walkCycleAnchor(rows) {
+  // rows: [dte, fetched_at][], already sorted newest-first, from a SINGLE table's own timeline.
+  if (!rows.length) return { anchorVal: null, anchorTs: null };
+  const EPS = 0.01; // tolerance for float noise between consecutive same-source fetches
+  let anchorVal = rows[0][0];
+  let anchorTs = rows[0][1];
+  for (let i = 1; i < rows.length; i++) {
+    const [dte, ts] = rows[i];
+    if (dte >= anchorVal - EPS) {
+      // still non-decreasing as we look further back — same contract cycle, keep walking
+      if (dte > anchorVal) anchorVal = dte;
+      anchorTs = ts;
+    } else {
+      // dropped going further back in time — crossed into the previous cycle's tail, stop
+      break;
+    }
+  }
+  return { anchorVal, anchorTs };
+}
+
+function computeCycleAnchor() {
+  // IMPORTANT: walk each table's dte timeline SEPARATELY, not merged. intraday and oi
+  // are captured by independent fetch jobs and interleave in time without moving in
+  // lockstep — merging them before walking backward means a row from one table that
+  // happens to land slightly lower than the other table's concurrent reading looks like
+  // a "cycle boundary" and halts the walk early, even though it's just cross-source
+  // jitter, not an actual contract rollover. Walking each source on its own avoids that.
+  let best = { anchorVal: null, anchorTs: null };
   ['intraday', 'oi'].forEach(t => {
     const check = q(`SELECT name FROM sqlite_master WHERE type='table' AND name='${t}'`);
     if (!check.length) return;
-    const row = q(`SELECT MAX(fetched_at) FROM ${t}`);
-    const ts = row.length ? row[0][0] : null;
-    if (ts && (latestTs === null || ts > latestTs)) latestTs = ts;
-  });
-  if (!latestTs) return { minVal: null, minTs: null };
-
-  const dayPrefix = latestTs.slice(0, 10); // 'YYYY-MM-DD', UTC
-
-  let minVal = null, minTs = null;
-  ['intraday', 'oi'].forEach(t => {
-    const check = q(`SELECT name FROM sqlite_master WHERE type='table' AND name='${t}'`);
-    if (!check.length) return;
-    const rows = q(
-      `SELECT dte, fetched_at FROM ${t} WHERE dte IS NOT NULL AND dte >= 0 AND substr(fetched_at, 1, 10) = ? ORDER BY dte DESC, fetched_at ASC LIMIT 1`,
-      [dayPrefix]
-    );
-    if (rows.length) {
-      const [dte, ts] = rows[0];
-      if (minVal === null || dte > minVal) { minVal = dte; minTs = ts; }
+    const rows = q(`
+      SELECT dte, fetched_at FROM (
+        SELECT fetched_at, MAX(dte) AS dte
+        FROM ${t}
+        WHERE dte IS NOT NULL AND dte >= 0
+        GROUP BY fetched_at
+      )
+      ORDER BY fetched_at DESC LIMIT 500
+    `);
+    const { anchorVal, anchorTs } = walkCycleAnchor(rows);
+    if (anchorTs !== null && (best.anchorTs === null || anchorTs > best.anchorTs)) {
+      best = { anchorVal, anchorTs };
     }
   });
-  return { minVal, minTs };
+  return best;
 }
 
 function anchorDateStr(ts) {
@@ -1303,20 +1327,20 @@ function anchorDateStr(ts) {
 }
 
 function updateJumpButton() {
-  const { minVal, minTs } = computeMinDte();
-  currentMinDte = minVal;
-  currentMinDteDate = minTs ? minTs.slice(0, 10) : null;
+  const { anchorVal, anchorTs } = computeCycleAnchor();
+  currentDteAnchorVal = anchorVal;
+  currentDteAnchorTs = anchorTs;
   const labelEl = document.querySelector('#jumpDteBtn .jump-label');
   const btn = document.getElementById('jumpDteBtn');
   if (!labelEl) return;
-  if (minVal === null) {
+  if (anchorVal === null) {
     labelEl.textContent = 'JUMP TO DTE';
     if (btn) btn.title = 'no dte data loaded yet';
     return;
   }
-  const dateStr = anchorDateStr(minTs);
-  labelEl.textContent = `JUMP TO ${minVal.toFixed(2)} DTE${dateStr ? ' · ' + dateStr : ''}`;
-  if (btn) btn.title = `scroll to the nearest-expiry row (dte ${minVal.toFixed(2)}${dateStr ? ', ' + dateStr : ''})`;
+  const dateStr = anchorDateStr(anchorTs);
+  labelEl.textContent = `JUMP TO ${anchorVal.toFixed(2)} DTE${dateStr ? ' · ' + dateStr : ''}`;
+  if (btn) btn.title = `scroll to the current contract's anchor row (dte ${anchorVal.toFixed(2)}${dateStr ? ', ' + dateStr : ''})`;
 }
 
 /* ---- jump button roams randomly around the viewport ---- */
@@ -1486,12 +1510,10 @@ function buildLogRowsHtml(withPc, medGap, tableName) {
     const flag = p && gapMin > medGap * 2;
     const pc = r.pc;
 
-    // Today's dte value AND today's date, both required — otherwise the last fetch of the
-    // previous day (right before midnight, often numerically identical) gets flagged too.
-    const rowDate = typeof r.ts === 'string' ? r.ts.slice(0, 10) : null;
-    const isDteHot = r.dte != null && currentMinDte != null
-      && Math.abs(r.dte - currentMinDte) < 0.005
-      && rowDate === currentMinDteDate;
+    // Match the exact row that anchors the current (most recent) contract cycle —
+    // an exact timestamp match is unambiguous, unlike matching by value+calendar-date,
+    // which broke once dte started looping multiple times per day.
+    const isDteHot = r.ts != null && currentDteAnchorTs != null && r.ts === currentDteAnchorTs;
     const dteCell = isDteHot
       ? `<span class="dte-hot-cell"><span class="dte-hot-dot"></span>${fmtNum(r.dte,2)}<span class="mushroom-shuttle"><span>🍄</span><span>🍄</span><span>🍄</span><span>🍄</span></span></span>`
       : fmtNum(r.dte,2);
