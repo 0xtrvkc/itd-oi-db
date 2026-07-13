@@ -1282,17 +1282,21 @@ function computeMinDte() {
   return { minVal, minTs };
 }
 
-function expiryDateStr(ts, dte) {
-  if (ts == null || dte == null) return null;
+function anchorDateStr(ts) {
+  // Shows the calendar date THIS dte reading is from (the anchor's own fetch time),
+  // not a projected future expiry instant — projecting forward by `dte` days and then
+  // shifting +7h for bkk can legitimately cross midnight (correct math, wrong intent).
+  // We want "which day is this DTE reading for", which stays the same day in both
+  // tz views for any reading taken well clear of the UTC day boundary.
+  if (ts == null) return null;
   try {
-    const base = new Date(ts.includes('Z') || ts.includes('+') ? ts : ts + 'Z');
+    let base = new Date(ts.includes('Z') || ts.includes('+') ? ts : ts + 'Z');
     if (isNaN(base.getTime())) return null;
-    let expiry = new Date(base.getTime() + dte * 86400000);
     if (typeof tzMode !== 'undefined' && tzMode === 'bkk') {
-      expiry = new Date(expiry.getTime() + 7 * 3600 * 1000);
+      base = new Date(base.getTime() + 7 * 3600 * 1000);
     }
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    return `${months[expiry.getUTCMonth()]} ${expiry.getUTCDate()}`;
+    return `${months[base.getUTCMonth()]} ${base.getUTCDate()}`;
   } catch (e) {
     return null;
   }
@@ -1310,7 +1314,7 @@ function updateJumpButton() {
     if (btn) btn.title = 'no dte data loaded yet';
     return;
   }
-  const dateStr = expiryDateStr(minTs, minVal);
+  const dateStr = anchorDateStr(minTs);
   labelEl.textContent = `JUMP TO ${minVal.toFixed(2)} DTE${dateStr ? ' · ' + dateStr : ''}`;
   if (btn) btn.title = `scroll to the nearest-expiry row (dte ${minVal.toFixed(2)}${dateStr ? ', ' + dateStr : ''})`;
 }
