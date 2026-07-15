@@ -2,1164 +2,609 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>vol2vol ✿ snapshot log</title>
-  <link rel="icon" type="image/png" href="data:image/png;base64,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">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>vol2vol — snapshot log</title>
+
+<!-- iOS home screen icon -->
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+
+<!-- Android / general icon -->
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+
+<!-- PWA manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- Makes the status bar match your dark theme when added to home screen -->
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAA1VSURBVHic7Zt7dNTVtcc/+zednXR2t3+jXd8ZdD1DjA==">
 <style>
-  /* ===== DESIGN TOKENS ===== */
-  :root {
-    /* DAY — Cottagcore + Pastel Meadow */
-    --bg:        #F7F3E9;
-    --bg2:       #FFFDD0;
-    --bg3:       #EDE8D5;
-    --line:      #D4C9A8;
-    --line2:     #C4B894;
-    --fg:        #4A3F2F;
-    --dim:       #8A7B62;
-    --dim2:      #B8A882;
-    --green:     #6B9A5E;
-    --green-bg:  #EDF4E9;
-    --red:       #C0604A;
-    --red-bg:    #FAEAE7;
-    --amber:     #B8860B;
-    --amber-bg:  #FEF6DE;
-    --cyan:      #4A7D9A;
-    --accent1:   #8A9A5B;
-    --accent2:   #E1A9C3;
-    --accent3:   #FAE6A7;
-    --moss:      #8A9A5B;
-    --rose:      #E1A9C3;
-    --lavender:  #C8C5E0;
-    --peach:     #FFE5B4;
-    --shadow:    rgba(100, 85, 60, 0.12);
-    --shadow2:   rgba(100, 85, 60, 0.22);
-
-    --mono: "JetBrains Mono", "IBM Plex Mono", "SF Mono", Menlo, Consolas, monospace;
-    --serif: Georgia, "Times New Roman", serif;
-
-    --radius: 14px;
-    --radius-sm: 8px;
-    --radius-xs: 5px;
-  }
-
-  /* NIGHT — Twilight/Sunset */
-  [data-theme="night"] {
-    --bg:        #1E1228;
-    --bg2:       #261535;
-    --bg3:       #2D1A3E;
-    --line:      #3D2850;
-    --line2:     #4F3568;
-    --fg:        #F0D9C8;
-    --dim:       #A08090;
-    --dim2:      #6B4E6A;
-    --green:     #78C9A8;
-    --green-bg:  rgba(120, 201, 168, 0.12);
-    --red:       #F08080;
-    --red-bg:    rgba(240, 128, 128, 0.12);
-    --amber:     #FFDAB9;
-    --amber-bg:  rgba(255, 218, 185, 0.12);
-    --cyan:      #7FBFCF;
-    --accent1:   #9F7EC8;
-    --accent2:   #F08080;
-    --accent3:   #FFDAB9;
-    --moss:      #5F9EA0;
-    --rose:      #D8799A;
-    --lavender:  #9F7EC8;
-    --peach:     #F0A875;
-    --shadow:    rgba(0, 0, 0, 0.35);
-    --shadow2:   rgba(0, 0, 0, 0.55);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  html, body {
-    background: var(--bg);
-    min-height: 100vh;
-    transition: background 0.4s ease, color 0.4s ease;
-  }
-
-  body {
-    font-family: var(--mono);
-    color: var(--fg);
-    font-size: 15px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ===== THEME TOGGLE ===== */
-  #themeBtn {
-    position: fixed;
-    top: 16px; right: 18px;
-    z-index: 999;
-    background: var(--bg2);
-    border: 1.5px solid var(--line2);
-    border-radius: 50px;
-    padding: 6px 14px;
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--dim);
-    cursor: pointer;
-    display: flex; align-items: center; gap: 7px;
-    box-shadow: 0 2px 8px var(--shadow);
-    transition: all 0.3s ease;
-    white-space: nowrap;
-  }
-  #themeBtn:hover {
-    border-color: var(--accent1);
-    color: var(--fg);
-    box-shadow: 0 3px 14px var(--shadow2);
-  }
-  #themeBtn .icon { font-size: 15px; }
-
-  /* ===== JUMP TO 0.99 DTE — big ass floating button, roams the screen ===== */
-  #jumpDteBtn {
-    position: fixed;
-    left: 50%;
-    top: calc(100vh - 110px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 26px 48px;
-    border: none;
-    border-radius: 80px;
-    cursor: pointer;
-    font-family: var(--mono);
-    font-weight: 800;
-    font-size: 24px;
-    letter-spacing: 0.4px;
-    color: #3a1a10;
-    background: linear-gradient(135deg, #FFD93D, #FF6B6B 55%, #FF8FA3);
-    background-size: 220% 220%;
-    box-shadow: 0 10px 30px rgba(192, 96, 74, 0.5), 0 0 0 0 rgba(255, 107, 107, 0.6);
-    animation: jumpBtnPulse 1.1s ease-in-out infinite, jumpBtnGradient 2.4s ease infinite;
-    transition: left 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95), top 1.8s cubic-bezier(0.45, 0.05, 0.55, 0.95), transform 0.2s ease;
-  }
-  #jumpDteBtn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 12px 34px rgba(192, 96, 74, 0.65);
-  }
-  #jumpDteBtn:active {
-    transform: scale(0.94);
-  }
-  #jumpDteBtn .jump-icon {
-    font-size: 28px;
-    display: inline-block;
-    animation: jumpIconWiggle 0.6s ease-in-out infinite;
-  }
-  #jumpDteBtn.no-target {
-    animation: jumpBtnPulse 1.1s ease-in-out infinite, jumpBtnGradient 2.4s ease infinite, jumpBtnShake 0.45s ease-in-out;
-  }
-  @keyframes jumpBtnPulse {
-    0%, 100% { box-shadow: 0 10px 30px rgba(192, 96, 74, 0.5), 0 0 0 0 rgba(255, 107, 107, 0.55); }
-    50%      { box-shadow: 0 10px 34px rgba(192, 96, 74, 0.6), 0 0 0 18px rgba(255, 107, 107, 0); }
-  }
-  @keyframes jumpBtnGradient {
-    0%, 100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
-  }
-  @keyframes jumpIconWiggle {
-    0%, 100% { transform: translateY(0) rotate(-6deg); }
-    50%      { transform: translateY(-3px) rotate(6deg); }
-  }
-  @keyframes jumpBtnShake {
-    0%, 100% { transform: rotate(0); }
-    20%      { transform: translateX(-6px) rotate(-4deg); }
-    40%      { transform: translateX(6px) rotate(4deg); }
-    60%      { transform: translateX(-5px) rotate(-3deg); }
-    80%      { transform: translateX(5px) rotate(3deg); }
-  }
-
-  /* Landing flash when a row is scrolled to */
-  tbody tr.dte-landed td {
-    animation: dteLandFlash 0.9s ease-out 2 !important;
-  }
-  @keyframes dteLandFlash {
-    0%   { outline: 3px solid #FFD93D; outline-offset: -3px; }
-    100% { outline: 3px solid transparent; outline-offset: -3px; }
-  }
-
-  /* ===== TZ TOGGLE (new) ===== */
-  #tzBtn {
-    position: fixed;
-    top: 16px; right: 150px;
-    z-index: 999;
-    background: var(--bg2);
-    border: 1.5px solid var(--line2);
-    border-radius: 50px;
-    padding: 6px 14px;
-    font-family: var(--mono);
-    font-size: 13px;
-    color: var(--dim);
-    cursor: pointer;
-    display: flex; align-items: center; gap: 7px;
-    box-shadow: 0 2px 8px var(--shadow);
-    transition: all 0.3s ease;
-    white-space: nowrap;
-  }
-  #tzBtn:hover {
-    border-color: var(--accent1);
-    color: var(--fg);
-    box-shadow: 0 3px 14px var(--shadow2);
-  }
-  #tzBtn .icon { font-size: 14px; }
-  @media (max-width: 640px) {
-    #tzBtn { top: 60px; right: 18px; }
-  }
-
-  /* ===== DECORATIVE DOTS ===== */
-  .deco-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--moss);
-    opacity: 0.6;
-    vertical-align: middle;
-    margin-right: 6px;
-  }
-
-  /* ===== DROPZONE ===== */
-  #dropzone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    background: var(--bg);
-    padding: 40px 20px;
-  }
-
-  /* Subtle polka-dot background texture */
-  #dropzone::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(var(--line) 1.2px, transparent 1.2px);
-    background-size: 28px 28px;
-    opacity: 0.35;
-    pointer-events: none;
-  }
-
-  .dropzone-inner {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
-    background: var(--bg2);
-    border: 2px dashed var(--line2);
-    border-radius: 24px;
-    padding: 60px 64px 52px;
-    max-width: 480px;
-    width: 100%;
-    box-shadow: 0 6px 32px var(--shadow), 0 1px 0 rgba(255,255,255,0.5) inset;
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-  }
-
-  #dropzone.drag .dropzone-inner {
-    border-color: var(--moss);
-    box-shadow: 0 8px 40px var(--shadow2), 0 0 0 4px rgba(138, 154, 91, 0.15);
-    transform: translateY(-3px);
-  }
-
-  .dz-mushroom {
-    font-size: 54px;
-    margin-bottom: 18px;
-    filter: drop-shadow(0 4px 8px var(--shadow));
-    animation: float 3.5s ease-in-out infinite;
-    display: block;
-    text-align: center;
-  }
-  #dropzone.drag .dz-mushroom { animation: wiggle 0.5s ease infinite; }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50%       { transform: translateY(-8px); }
-  }
-  @keyframes wiggle {
-    0%, 100% { transform: rotate(-6deg); }
-    50%       { transform: rotate(6deg); }
-  }
-
-  .dz-title {
-    font-family: var(--serif);
-    font-size: 22px;
-    color: var(--fg);
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-    font-weight: 700;
-  }
-  .dz-sub {
-    font-size: 13px;
-    color: var(--dim);
-    margin-bottom: 28px;
-    text-align: center;
-  }
-
-  .dz-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--moss);
-    color: var(--bg2);
-    border: none;
-    border-radius: 50px;
-    padding: 11px 28px;
-    font-family: var(--mono);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 3px 10px var(--shadow2);
-    transition: transform 0.15s, box-shadow 0.15s;
-    letter-spacing: 0.5px;
-  }
-  .dz-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 18px var(--shadow2); }
-  .dz-btn:active { transform: translateY(0); }
-
-  .dz-cursor {
-    display: inline-block;
-    width: 2px; height: 18px;
-    background: var(--dim2);
-    vertical-align: -4px;
-    margin-left: 2px;
-    border-radius: 2px;
-    animation: blink 1.1s steps(1) infinite;
-  }
-  #dropzone.drag .dz-cursor { background: var(--moss); }
-  @keyframes blink { 50% { opacity: 0; } }
-
-  .dz-hint {
-    margin-top: 20px;
-    font-size: 12px;
-    color: var(--dim2);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .dz-hint::before, .dz-hint::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--line);
-  }
-
-  #dropzone input { display: none; }
-
-  /* ===== APP SHELL ===== */
-  #app {
-    display: none;
-    max-width: 1560px;
-    margin: 0 auto;
-    padding: 28px 22px 90px;
-  }
-
-  /* ===== TOPBAR ===== */
-  .topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 22px;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding-right: 270px; /* space for theme btn + tz btn */
-  }
-
-  .title-group { display: flex; align-items: center; gap: 12px; }
-
-  .title-icon { font-size: 26px; }
-
-  .title {
-    font-family: var(--serif);
-    color: var(--fg);
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-  }
-  .title .tick { color: var(--moss); }
-
-  .title-tagline {
-    font-size: 12px;
-    color: var(--dim2);
-    margin-top: 1px;
-  }
-
-  .topbar-right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 3px;
-  }
-
-  .meta-pill {
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 50px;
-    padding: 5px 14px;
-    font-size: 13px;
-    color: var(--dim);
-    box-shadow: 0 1px 4px var(--shadow);
-  }
-  .meta-pill b { color: var(--cyan); font-weight: 600; }
-
-  /* ===== STAT STRIP ===== */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 10px;
-    margin-bottom: 22px;
-  }
-
-  .stat {
-    background: var(--bg2);
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius);
-    padding: 14px 15px 12px;
-    box-shadow: 0 2px 8px var(--shadow);
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .stat:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 18px var(--shadow2);
-  }
-
-  /* Left accent stripe per card */
-  .stat::before {
-    content: "";
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 4px;
-    background: var(--line2);
-    border-radius: var(--radius) 0 0 var(--radius);
-  }
-  .stat:nth-child(1)::before { background: var(--moss); }
-  .stat:nth-child(2)::before { background: var(--cyan); }
-  .stat:nth-child(3)::before { background: var(--green); }
-  .stat:nth-child(4)::before { background: var(--lavender); }
-  .stat:nth-child(5)::before { background: var(--rose); }
-  .stat:nth-child(6)::before { background: var(--peach); }
-  .stat:nth-child(7)::before { background: var(--accent3); }
-  .stat:nth-child(8)::before { background: var(--red); }
-
-  .stat .l {
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 10.5px;
-    margin-bottom: 5px;
-    font-weight: 600;
-  }
-  .stat .v {
-    color: var(--fg);
-    font-size: 17px;
-    font-weight: 700;
-    white-space: nowrap;
-  }
-  .stat .v.up { color: var(--green); }
-  .stat .v.down { color: var(--red); }
-  .stat .sub {
-    color: var(--dim2);
-    font-size: 11.5px;
-    margin-top: 4px;
-  }
-  .stat .sub.up { color: var(--green); }
-  .stat .sub.down { color: var(--red); }
-
-  @media (max-width: 1080px) { .stats { grid-template-columns: repeat(4, 1fr); } }
-  @media (max-width: 600px)  { .stats { grid-template-columns: repeat(2, 1fr); } }
-
-  /* ===== SECTION HEADER ===== */
-  .section-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin: 26px 0 10px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .section-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--serif);
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--fg);
-  }
-  .section-label .leaf { font-size: 16px; }
-
-  .section-hint {
-    font-size: 12px;
-    color: var(--dim2);
-    background: var(--bg2);
-    border: 1px solid var(--line);
-    border-radius: 50px;
-    padding: 3px 11px;
-  }
-
-  /* ===== TABLE ===== */
-  .tablewrap {
-    border: 1.5px solid var(--line);
-    border-radius: var(--radius);
-    overflow-x: auto;
-    box-shadow: 0 2px 12px var(--shadow);
-    background: var(--bg2);
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13.5px;
-    min-width: 1280px;
-  }
-
-  thead th {
-    position: sticky;
-    top: 0;
-    background: var(--bg3);
-    color: var(--dim);
-    text-align: right;
-    font-weight: 700;
-    padding: 10px 11px;
-    border-bottom: 1.5px solid var(--line);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 10;
-  }
-  thead th:first-child { border-radius: var(--radius) 0 0 0; }
-  thead th:last-child  { border-radius: 0 var(--radius) 0 0; }
-  thead th:first-child, thead th:nth-child(2), thead th:nth-child(3) { text-align: left; }
-
-  tbody td {
-    padding: 7px 11px;
-    text-align: right;
-    border-bottom: 1px solid var(--line);
-    white-space: nowrap;
-    color: var(--fg);
-    transition: background 0.1s;
-  }
-  tbody td:first-child, tbody td:nth-child(2), tbody td:nth-child(3) { text-align: left; }
-
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:last-child td:first-child  { border-radius: 0 0 0 var(--radius); }
-  tbody tr:last-child td:last-child   { border-radius: 0 0 var(--radius) 0; }
-
-  tbody tr:hover td { background: var(--bg3); }
-
-  tbody tr.flag td { background: var(--amber-bg); }
-  tbody tr.flag:hover td { background: color-mix(in srgb, var(--amber-bg) 80%, var(--bg3)); }
-
-  /* ===== 0DTE-ISH ROWS (dte ~ 0.99) — expiring-today, PACHINKO MODE ===== */
-  tbody tr.dte-hot {
-    position: relative;
-  }
-  tbody tr.dte-hot td {
-    background: var(--red-bg);
-    animation: pachinkoRow 0.85s steps(1) infinite;
-    position: relative;
-  }
-  tbody tr.dte-hot:hover td {
-    animation-play-state: paused;
-    background: color-mix(in srgb, var(--red-bg) 78%, var(--bg3));
-  }
-  tbody tr.dte-hot td:first-child {
-    animation: pachinkoRow 0.85s steps(1) infinite, pachinkoEdge 0.85s steps(1) infinite;
-  }
-  @keyframes pachinkoRow {
-    0%   { background: var(--red-bg); }
-    14%  { background: #FFE066; }
-    28%  { background: #FF6B6B; }
-    42%  { background: #FFD93D; }
-    57%  { background: #FF8FA3; }
-    71%  { background: #FFE066; }
-    85%  { background: #FF6B6B; }
-    100% { background: var(--red-bg); }
-  }
-  @keyframes pachinkoEdge {
-    0%   { box-shadow: inset 4px 0 0 var(--red); }
-    25%  { box-shadow: inset 4px 0 0 #FFD93D; }
-    50%  { box-shadow: inset 4px 0 0 #FF6B6B; }
-    75%  { box-shadow: inset 4px 0 0 #FFE066; }
-    100% { box-shadow: inset 4px 0 0 var(--red); }
-  }
-  .dte-hot-cell {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    color: var(--red);
-    font-weight: 800;
-    text-shadow: 0 0 6px rgba(192, 96, 74, 0.5);
-  }
-  .dte-hot-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: dtePulse 1.4s ease-in-out infinite;
-  }
-  @keyframes dtePulse {
-    0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(192, 96, 74, 0.55); }
-    50%      { transform: scale(1.25); opacity: 0.85; box-shadow: 0 0 0 4px rgba(192, 96, 74, 0); }
-  }
-  [data-theme="night"] .dte-hot-dot { animation-name: dtePulseNight; }
-  @keyframes dtePulseNight {
-    0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(240, 128, 128, 0.55); }
-    50%      { transform: scale(1.25); opacity: 0.85; box-shadow: 0 0 0 4px rgba(240, 128, 128, 0); }
-  }
-
-  /* ---- mushroom shuttle: fast back-and-forth pinball mushrooms ---- */
-  .mushroom-shuttle {
-    display: inline-flex;
-    align-items: center;
-    gap: 1px;
-    margin-left: 7px;
-    vertical-align: middle;
-  }
-  .mushroom-shuttle span {
-    display: inline-block;
-    font-size: 13px;
-    line-height: 1;
-    animation: mushroomBounce 0.28s ease-in-out infinite alternate;
-    will-change: transform;
-  }
-  .mushroom-shuttle span:nth-child(1) { animation-delay: 0s; }
-  .mushroom-shuttle span:nth-child(2) { animation-delay: 0.07s; }
-  .mushroom-shuttle span:nth-child(3) { animation-delay: 0.14s; }
-  .mushroom-shuttle span:nth-child(4) { animation-delay: 0.21s; }
-  @keyframes mushroomBounce {
-    0%   { transform: translateX(-6px) scaleX(1) rotate(-8deg); }
-    100% { transform: translateX(6px) scaleX(-1) rotate(8deg); }
-  }
-
-  /* Clickable snapshot rows (new — open per-strike detail) */
-  tbody tr.clickable-row { cursor: pointer; }
-  tbody tr.clickable-row:hover td { background: var(--bg3); }
-  tbody tr.clickable-row:active td { background: var(--line); }
-  tbody tr.clickable-row td:first-child::after {
-    content: "⌕";
-    color: var(--dim2);
-    margin-left: 6px;
-    font-size: 11px;
-    opacity: 0;
-    transition: opacity 0.15s;
-  }
-  tbody tr.clickable-row:hover td:first-child::after { opacity: 0.7; }
-
-  .idx { color: var(--dim2); font-size: 12px; }
-  .ts  { color: var(--cyan); }
-  .delta { color: var(--dim); font-size: 12.5px; }
-  .up   { color: var(--green); }
-  .down { color: var(--red); }
-  .zero { color: var(--dim2); }
-  .flagcell { color: var(--amber); font-weight: 600; }
-  .num { font-variant-numeric: tabular-nums; }
-
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    font-size: 10.5px;
-    padding: 2px 7px;
-    border: 1.5px solid var(--line2);
-    border-radius: 50px;
-    color: var(--dim);
-    margin-right: 6px;
-    font-weight: 600;
-    background: var(--bg3);
-  }
-  .badge.new {
-    border-color: var(--moss);
-    color: var(--moss);
-    background: var(--green-bg);
-  }
-
-  /* ===== STRIKE DETAIL MODAL (new) ===== */
-  #strikeOverlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(20, 15, 10, 0.45);
-    backdrop-filter: blur(2px);
-    padding: 40px 20px;
-    overflow-y: auto;
-  }
-  [data-theme="night"] #strikeOverlay { background: rgba(0, 0, 0, 0.6); }
-  #strikeOverlay.open { display: flex; align-items: flex-start; justify-content: center; }
-
-  #strikeModal {
-    background: var(--bg2);
-    border: 1.5px solid var(--line2);
-    border-radius: var(--radius);
-    box-shadow: 0 12px 48px var(--shadow2);
-    max-width: 640px;
-    width: 100%;
-    max-height: 88vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  @media (max-width: 640px) {
-    #strikeOverlay { padding: 0; }
-    #strikeModal { max-width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; border: none; }
-  }
-
-  .strike-modal-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 16px 18px 12px;
-    border-bottom: 1.5px solid var(--line);
-    background: var(--bg3);
-    flex-shrink: 0;
-  }
-  .strike-modal-title {
-    font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--fg);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .strike-modal-sub {
-    font-size: 15px;
-    color: var(--dim2);
-    margin-top: 4px;
-  }
-  .strike-modal-close {
-    background: var(--bg2);
-    border: 1.5px solid var(--line2);
-    border-radius: 50px;
-    width: 38px; height: 38px;
-    font-size: 19px;
-    color: var(--dim);
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.15s;
-  }
-  .strike-modal-close:hover { color: var(--red); border-color: var(--red); }
-
-  .strike-modal-stats {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 6px;
-    padding: 10px 18px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--line);
-    flex-shrink: 0;
-  }
-  .strike-modal-stats .s-l { font-size: 12px; color: var(--dim); text-transform: uppercase; letter-spacing: 0.5px; }
-  .strike-modal-stats .s-v { font-size: 17px; font-weight: 700; color: var(--fg); margin-top: 1px; white-space: nowrap; }
-  @media (max-width: 560px) { .strike-modal-stats { grid-template-columns: repeat(2, 1fr); } }
-
-  /* ---- lowest-vol strike — pachinko strobe highlight in the strike list ---- */
-  .strike-row.min-vol {
-    animation: pachinkoRow 0.85s steps(1) infinite;
-    position: relative;
-  }
-  .strike-row.min-vol .sr-strike {
-    box-shadow: inset 0 0 0 2px var(--red);
-    border-radius: 6px;
-  }
-  .strike-row.min-vol .sr-iv {
-    color: var(--red) !important;
-    font-weight: 800 !important;
-    text-shadow: 0 0 6px rgba(192, 96, 74, 0.5);
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .min-vol-dot {
-    display: inline-block;
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: dtePulse 1.4s ease-in-out infinite;
-  }
-
-  /* Legend / column header for the diverging bar chart */
-  .strike-list-head {
-    display: flex;
-    align-items: center;
-    padding: 8px 14px;
-    background: var(--bg3);
-    border-bottom: 1.5px solid var(--line);
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    color: var(--dim);
-    flex-shrink: 0;
-  }
-  .strike-list-head .slh-put  { flex: 1; text-align: right; color: var(--rose); padding-right: 10px; }
-  .strike-list-head .slh-strike { width: 96px; text-align: center; flex-shrink: 0; }
-  .strike-list-head .slh-call { flex: 1; text-align: left; color: var(--cyan); padding-left: 10px; }
-
-  .strike-modal-body {
-    overflow-y: auto;
-    padding: 2px 0 8px;
-  }
-
-  /* ===== Diverging OI bar chart — one row per strike, no wasted column space ===== */
-  .strike-row {
-    display: flex;
-    align-items: center;
-    padding: 6px 10px;
-    border-bottom: 1px solid var(--line);
-    transition: background 0.1s;
-  }
-  .strike-row:hover { background: var(--bg3); }
-  .strike-row.atm { background: var(--green-bg); }
-  .strike-row.atm:hover { background: color-mix(in srgb, var(--green-bg) 75%, var(--bg3)); }
-
-  .sr-put, .sr-call {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    height: 32px;
-  }
-  .sr-put  { justify-content: flex-end; }
-  .sr-call { justify-content: flex-start; }
-
-  .sr-strike {
-    width: 96px;
-    flex-shrink: 0;
-    text-align: center;
-    font-weight: 700;
-    font-size: 17px;
-    color: var(--fg);
-    font-variant-numeric: tabular-nums;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1.15;
-  }
-  .strike-row.atm .sr-strike { color: var(--moss); }
-  .sr-strike .sr-iv {
-    font-size: 12px;
-    color: var(--dim2);
-    font-weight: 500;
-  }
-  .sr-strike .sr-atm-dot {
-    position: absolute;
-    top: -3px;
-    font-size: 10px;
-    color: var(--moss);
-  }
-
-  .sr-bar {
-    height: 23px;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    min-width: 2px;
-    max-width: 100%;
-    font-size: 14px;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-    transition: width 0.2s ease;
-  }
-  .sr-bar.put {
-    background: linear-gradient(90deg, color-mix(in srgb, var(--rose) 55%, transparent), var(--rose));
-    justify-content: flex-start;
-    padding-left: 8px;
-    color: #fff;
-    border-radius: 5px 2px 2px 5px;
-  }
-  .sr-bar.call {
-    background: linear-gradient(90deg, var(--cyan), color-mix(in srgb, var(--cyan) 55%, transparent));
-    justify-content: flex-end;
-    padding-right: 8px;
-    color: #fff;
-    border-radius: 2px 5px 5px 2px;
-  }
-  [data-theme="night"] .sr-bar.put,
-  [data-theme="night"] .sr-bar.call { color: var(--bg); }
-
-  .sr-bar-label {
-    text-shadow: 0 1px 2px rgba(0,0,0,0.25);
-  }
-  /* When the bar is too thin to hold its own label, print the number outside instead */
-  .sr-num-outside {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--dim);
-    padding: 0 6px;
-    font-variant-numeric: tabular-nums;
-  }
-  .sr-num-outside.zero-num { color: var(--dim2); font-weight: 500; }
-
-  .strike-row.max-call .sr-bar.call { box-shadow: 0 0 0 1.5px var(--cyan); }
-  .strike-row.max-put  .sr-bar.put  { box-shadow: 0 0 0 1.5px var(--rose); }
-
-  .strike-modal-empty {
-    padding: 40px 22px;
-    text-align: center;
-    color: var(--dim);
-    font-size: 13px;
-  }
-
-
-  /* ===== FOOTER ===== */
-  .footer {
-    color: var(--dim2);
-    font-size: 12.5px;
-    margin-top: 18px;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 0 2px;
-  }
-  .footer .blink { color: var(--dim); }
-  .footer-leaf { opacity: 0.6; }
-
-  /* ===== SCROLLBAR ===== */
-  ::-webkit-scrollbar { height: 9px; width: 9px; }
-  ::-webkit-scrollbar-track { background: var(--bg); border-radius: 99px; }
-  ::-webkit-scrollbar-thumb {
-    background: var(--line2);
-    border-radius: 99px;
-    border: 2px solid var(--bg);
-  }
-  ::-webkit-scrollbar-thumb:hover { background: var(--dim2); }
-
-  /* ===== TABS ===== */
-  .tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-  .tab-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: var(--bg2);
-    border: 1.5px solid var(--line);
-    color: var(--dim);
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 600;
-    padding: 9px 18px;
-    border-radius: 50px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .tab-btn:hover {
-    color: var(--fg);
-    border-color: var(--line2);
-  }
-  .tab-btn.active {
-    background: var(--moss);
-    border-color: var(--moss);
-    color: var(--bg2);
-  }
-  .tab-count {
-    font-size: 10.5px;
-    opacity: 0.75;
-    font-weight: 700;
-  }
-  .view { display: none; }
-  .view.active { display: block; }
-
-  /* ===== DIVIDER ===== */
-  .cozy-divider {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--dim2);
-    font-size: 14px;
-    margin-bottom: 14px;
-  }
-  .cozy-divider::before, .cozy-divider::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: var(--line);
-  }
-
-  /* ===== TRANSITIONS ===== */
-  #app, .stat, .tablewrap, thead th, .meta-pill, .section-hint, .badge {
-    transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease;
-  }
+/* =========================================================================
+   DESIGN TOKENS — "Platinum & Parchment" — a formal, vintage-Apple mobile
+   terminal. Pinstripe chrome + brushed-metal bevels (System 7 / early Aqua),
+   warm paper palette, ui-serif/ui-monospace resolve to New York / SF Mono
+   on Apple hardware for an authentic period feel.
+   ========================================================================= */
+:root{
+  --bg:        #EAE5D8;
+  --bg-elev:   #F8F5EC;
+  --bg-sunk:   #DFD9C7;
+  --bg-well:   #D6CFB9;
+  --line:      #C6BEA4;
+  --line-str:  #A99E7E;
+  --ink:       #2B2620;
+  --ink-dim:   #6B6252;
+  --ink-faint: #948B76;
+  --up:        #4C7A54;
+  --up-bg:     #E7EDE2;
+  --down:      #A3483A;
+  --down-bg:   #F3E5DF;
+  --warn:      #A9791E;
+  --warn-bg:   #F2E9D2;
+  --current:   #3E5C76;
+  --current-bg:#E1E8ED;
+  --gloss-top: rgba(255,255,255,0.55);
+  --gloss-bot: rgba(0,0,0,0.06);
+  --shadow:    rgba(43, 38, 32, 0.14);
+  --shadow2:   rgba(43, 38, 32, 0.26);
+
+  --font-display: ui-serif, "New York", Georgia, "Times New Roman", serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:    ui-monospace, "SF Mono", Menlo, "Courier New", monospace;
+
+  --radius-lg: 16px;
+  --radius:    11px;
+  --radius-sm: 7px;
+
+  --rb1:#7CAE6B; --rb2:#E4C752; --rb3:#DE9548; --rb4:#C05646; --rb5:#8C6AA8; --rb6:#5B8FC4;
+}
+
+[data-theme="dark"]{
+  --bg:        #171613;
+  --bg-elev:   #211F1B;
+  --bg-sunk:   #131210;
+  --bg-well:   #0F0E0C;
+  --line:      #3A362C;
+  --line-str:  #504A3A;
+  --ink:       #ECE5D5;
+  --ink-dim:   #B0A78F;
+  --ink-faint: #7C7460;
+  --up:        #7FBE87;
+  --up-bg:     #1E2A20;
+  --down:      #D9897A;
+  --down-bg:   #2E1E1A;
+  --warn:      #E0B15E;
+  --warn-bg:   #2E2717;
+  --current:   #8FB4D6;
+  --current-bg:#1B2731;
+  --gloss-top: rgba(255,255,255,0.08);
+  --gloss-bot: rgba(0,0,0,0.35);
+  --shadow:    rgba(0,0,0,0.35);
+  --shadow2:   rgba(0,0,0,0.55);
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{ background:var(--bg); }
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  padding-bottom:96px;
+  transition:background .3s ease,color .3s ease;
+}
+.num{ font-variant-numeric:tabular-nums; font-family:var(--font-mono); }
+button{ font-family:inherit; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+}
+
+/* ===== SIGNATURE — thin candy-stripe hairline, the one vintage-Apple flourish ===== */
+.rainbow-bar{
+  position:fixed; top:0; left:0; right:0; height:5px; z-index:1200;
+  background:linear-gradient(90deg,var(--rb1),var(--rb2),var(--rb3),var(--rb4),var(--rb5),var(--rb6));
+}
+
+/* ===== AMBIENT FLUID BACKDROP — slow, smooth, never strobes ===== */
+.fluid-field{ position:fixed; inset:0; overflow:hidden; z-index:0; pointer-events:none; }
+.fluid-field span{
+  position:absolute; border-radius:50%; filter:blur(46px); opacity:.28;
+  will-change:transform;
+}
+.fluid-field span:nth-child(1){ width:260px;height:260px; left:-70px; top:6%; background:var(--rb6); animation:driftA 26s ease-in-out infinite; }
+.fluid-field span:nth-child(2){ width:220px;height:220px; right:-60px; top:38%; background:var(--rb2); animation:driftB 32s ease-in-out infinite; }
+.fluid-field span:nth-child(3){ width:240px;height:240px; left:8%; bottom:2%; background:var(--rb1); animation:driftC 29s ease-in-out infinite; }
+[data-theme="dark"] .fluid-field span{ opacity:.16; }
+@keyframes driftA{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(30px,40px) scale(1.12);} }
+@keyframes driftB{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(-26px,30px) scale(0.9);} }
+@keyframes driftC{ 0%,100%{ transform:translate(0,0) scale(1);} 50%{ transform:translate(24px,-26px) scale(1.08);} }
+
+/* ===== APP SHELL ===== */
+#shell{ position:relative; z-index:1; max-width:520px; margin:0 auto; padding:20px 14px 20px; transition:max-width .25s ease; }
+body.pc-view #shell{ max-width:1180px; }
+body.pc-view .overview{ grid-template-columns:repeat(6,1fr); }
+body.pc-view .tile.lead{ grid-column:span 1; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; }
+body.pc-view .tile.lead .tile-sym{ text-align:left; margin-top:2px; }
+body.pc-view .segment{ max-width:360px; }
+
+/* ===== HEADER — pinstripe titlebar ===== */
+.titlebar{
+  position:sticky; top:5px; z-index:100;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:
+    repeating-linear-gradient(180deg, var(--gloss-top) 0px, var(--gloss-top) 1px, transparent 1px, transparent 3px),
+    linear-gradient(180deg, var(--bg-elev), var(--bg-sunk));
+  border:1.5px solid var(--line-str);
+  border-radius:var(--radius-lg);
+  padding:11px 14px;
+  box-shadow:0 3px 10px var(--shadow), inset 0 1px 0 var(--gloss-top);
+  margin-bottom:14px;
+}
+.brand{ display:flex; flex-direction:column; }
+.brand-mark{ font-family:var(--font-display); font-weight:700; font-size:19px; letter-spacing:.2px; color:var(--ink); }
+.brand-sub{ font-size:10.5px; text-transform:uppercase; letter-spacing:1.4px; color:var(--ink-faint); margin-top:1px; }
+.title-controls{ display:flex; gap:6px; flex-shrink:0; }
+
+.chrome-btn{
+  display:flex; align-items:center; justify-content:center;
+  width:34px; height:34px;
+  background:linear-gradient(180deg, var(--gloss-top), transparent 60%), var(--bg-elev);
+  border:1.5px solid var(--line-str);
+  border-radius:9px;
+  color:var(--ink-dim);
+  font-size:15px;
+  cursor:pointer;
+  box-shadow:0 1px 3px var(--shadow), inset 0 1px 0 var(--gloss-top);
+  transition:transform .12s ease, box-shadow .12s ease, color .2s ease;
+}
+.chrome-btn:active{ transform:translateY(1px) scale(.96); box-shadow:inset 0 1px 3px var(--shadow2); }
+.chrome-btn.wide{
+  width:auto; min-width:92px; padding:0 14px;
+  font-family:var(--font-body); font-size:12px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  color:var(--ink-dim); gap:6px;
+}
+.chrome-btn.wide:hover{ color:var(--ink); }
+
+/* ===== DROPZONE / IMPORT CARD ===== */
+#dropzone{ display:flex; align-items:center; justify-content:center; min-height:70vh; padding:10px; }
+.import-card{
+  width:100%; max-width:380px;
+  background:linear-gradient(180deg, var(--gloss-top), transparent 40%), var(--bg-elev);
+  border:1.5px solid var(--line-str);
+  border-radius:var(--radius-lg);
+  box-shadow:0 8px 28px var(--shadow2), inset 0 1px 0 var(--gloss-top);
+  padding:34px 26px 28px;
+  text-align:center;
+  animation:cardIn .5s cubic-bezier(.22,.9,.3,1) both;
+}
+.import-glyph{
+  width:56px; height:56px; margin:0 auto 18px;
+  border:1.5px solid var(--line-str); border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  background:var(--bg-well); box-shadow:inset 0 2px 5px var(--shadow);
+}
+.import-glyph svg{ width:26px; height:26px; }
+.import-title{ font-family:var(--font-display); font-weight:700; font-size:19px; color:var(--ink); margin-bottom:6px; }
+.import-sub{ font-size:12.5px; color:var(--ink-dim); margin-bottom:22px; line-height:1.55; }
+.import-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  background:linear-gradient(180deg, var(--gloss-top), transparent 55%), var(--current);
+  color:#F5F2E8; border:1.5px solid var(--line-str);
+  border-radius:50px; padding:10px 26px;
+  font-family:var(--font-body); font-size:13.5px; font-weight:600; letter-spacing:.3px;
+  cursor:pointer; box-shadow:0 3px 10px var(--shadow2), inset 0 1px 0 rgba(255,255,255,0.35);
+  transition:transform .12s ease;
+}
+.import-btn:active{ transform:translateY(1px) scale(.98); }
+.import-hint{ margin-top:18px; font-size:11px; color:var(--ink-faint); display:flex; align-items:center; gap:8px; }
+.import-hint::before,.import-hint::after{ content:""; flex:1; height:1px; background:var(--line); }
+#dropzone.drag .import-card{ border-color:var(--current); box-shadow:0 10px 34px var(--shadow2), 0 0 0 3px var(--current-bg); }
+#dropzone input{ display:none; }
+.import-error{ color:var(--down); font-size:12.5px; margin-top:4px; }
+@keyframes cardIn{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:translateY(0);} }
+
+/* ===== APP ===== */
+#app{ display:none; }
+
+/* ===== OVERVIEW WELL ===== */
+.overview{
+  display:grid; grid-template-columns:1fr 1fr; gap:8px;
+  margin-bottom:16px;
+}
+.tile{
+  background:var(--bg-well);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:10px 12px 9px;
+  box-shadow:inset 0 1px 4px var(--shadow);
+}
+.tile.lead{
+  grid-column:1 / -1;
+  display:flex; align-items:baseline; justify-content:space-between;
+  background:linear-gradient(180deg, var(--gloss-top), transparent 50%), var(--current-bg);
+  border-color:var(--current);
+}
+.tile-label{ font-size:9.5px; text-transform:uppercase; letter-spacing:1.2px; color:var(--ink-faint); font-weight:600; display:block; margin-bottom:3px; }
+.tile-value{ font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--ink); }
+.tile.lead .tile-value{ font-size:28px; color:var(--current); }
+.tile.lead .tile-label{ color:var(--current); opacity:.85; }
+.tile-sub{ font-size:10.5px; color:var(--ink-dim); margin-top:2px; }
+.tile-sym{ font-family:var(--font-display); font-size:13px; color:var(--ink-dim); text-align:right; }
+
+/* ===== SEGMENTED CONTROL ===== */
+.segment{
+  position:relative;
+  display:flex;
+  background:var(--bg-well);
+  border:1px solid var(--line-str);
+  border-radius:50px;
+  padding:3px;
+  margin-bottom:16px;
+  box-shadow:inset 0 1px 4px var(--shadow);
+}
+.segment-indicator{
+  position:absolute; top:3px; bottom:3px; left:3px;
+  width:calc(50% - 3px);
+  background:linear-gradient(180deg, var(--gloss-top), transparent 60%), var(--bg-elev);
+  border:1px solid var(--line-str);
+  border-radius:50px;
+  box-shadow:0 1px 4px var(--shadow), inset 0 1px 0 var(--gloss-top);
+  transition:transform .32s cubic-bezier(.65,0,.35,1);
+}
+.seg-btn{
+  position:relative; z-index:1; flex:1;
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  background:none; border:none; padding:9px 6px;
+  font-size:12.5px; font-weight:600; letter-spacing:.2px;
+  color:var(--ink-dim); cursor:pointer;
+  transition:color .25s ease;
+}
+.seg-btn.active{ color:var(--ink); }
+.seg-count{ font-size:10px; font-weight:700; opacity:.7; font-family:var(--font-mono); }
+
+/* ===== SECTION HEAD ===== */
+.section-head{ display:flex; align-items:baseline; justify-content:space-between; margin:4px 2px 10px; }
+.section-title{ font-family:var(--font-display); font-weight:700; font-size:14.5px; color:var(--ink); }
+.section-hint{ font-size:10.5px; color:var(--ink-faint); }
+
+.view{ display:none; }
+.view.active{ display:block; }
+
+/* ===== SNAPSHOT CARDS ===== */
+.snap-list{ display:flex; flex-direction:column; gap:9px; }
+.snap-card{
+  background:linear-gradient(180deg, var(--gloss-top), transparent 45%), var(--bg-elev);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:12px 13px 11px;
+  box-shadow:0 1.5px 6px var(--shadow);
+  transition:transform .12s ease, box-shadow .12s ease, border-color .2s ease;
+  animation:cardRise .38s cubic-bezier(.22,.9,.3,1) both;
+  animation-delay:var(--d, 0s);
+}
+.snap-card.clickable{ cursor:pointer; }
+.snap-card.clickable:active{ transform:scale(.985); box-shadow:inset 0 1px 4px var(--shadow); }
+.snap-card.flag{ border-color:var(--warn); background:linear-gradient(180deg, var(--gloss-top), transparent 45%), var(--warn-bg); }
+.snap-card.hot{ border-color:var(--current); background:linear-gradient(180deg, var(--gloss-top), transparent 45%), var(--current-bg); }
+@keyframes cardRise{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:translateY(0);} }
+
+.card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:10px; margin-bottom:9px; }
+.dte-block{ display:flex; align-items:baseline; gap:8px; }
+.dte-eyebrow{ display:flex; flex-direction:column; }
+.dte-label{ font-size:9px; text-transform:uppercase; letter-spacing:1.3px; color:var(--ink-faint); font-weight:700; }
+.dte-value{ font-family:var(--font-mono); font-size:22px; font-weight:700; color:var(--ink); line-height:1.05; }
+.snap-card.hot .dte-value{ color:var(--current); }
+.hot-tag{
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:9px; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+  color:var(--current); border:1px solid var(--current); border-radius:50px;
+  padding:2px 7px 2px 5px; align-self:center;
+}
+.hot-dot{ width:5px; height:5px; border-radius:50%; background:var(--current); animation:ping 2.6s ease-in-out infinite; }
+@keyframes ping{ 0%,100%{ opacity:.5; transform:scale(.85);} 50%{ opacity:1; transform:scale(1.15);} }
+
+.meta-block{ text-align:right; flex-shrink:0; }
+.idx-badge{
+  display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.6px;
+  color:var(--ink-faint); background:var(--bg-well); border:1px solid var(--line);
+  border-radius:50px; padding:2px 8px; margin-bottom:4px;
+}
+.idx-badge.latest{ color:var(--up); border-color:var(--up); background:var(--up-bg); }
+.ts-value{ display:block; font-family:var(--font-mono); font-size:12px; color:var(--ink-dim); white-space:nowrap; }
+
+.card-mid{ margin-bottom:10px; }
+.dt-pill{
+  display:inline-flex; align-items:center; gap:5px;
+  font-family:var(--font-mono); font-size:11px; font-weight:600;
+  color:var(--ink-dim); background:var(--bg-well); border:1px solid var(--line);
+  border-radius:50px; padding:2.5px 9px;
+}
+.dt-pill.flag{ color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+.dt-pill .dt-key{ opacity:.65; }
+
+.metric-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+.metric{
+  background:var(--bg-well); border:1px solid var(--line); border-radius:var(--radius-sm);
+  padding:6px 4px 5px; text-align:center;
+}
+.m-label{ display:block; font-size:8.5px; text-transform:uppercase; letter-spacing:.7px; color:var(--ink-faint); font-weight:700; margin-bottom:2px; }
+.m-value{ font-family:var(--font-mono); font-size:12.5px; font-weight:700; color:var(--ink); }
+
+/* landing confirmation — plays a few times then stops, not a perpetual blink */
+.snap-card.landed{ animation:landGlow 1.1s ease-out 2 !important; }
+@keyframes landGlow{ 0%{ box-shadow:0 0 0 3px var(--current-bg), 0 1.5px 6px var(--shadow);} 100%{ box-shadow:0 1.5px 6px var(--shadow);} }
+
+/* ===== DESKTOP DATA TABLE (PC VIEW) ===== */
+.snap-table-outer{
+  border:1.5px solid var(--line-str);
+  border-radius:var(--radius);
+  box-shadow:0 1.5px 6px var(--shadow), inset 0 1px 0 var(--gloss-top);
+  overflow:auto;
+  max-height:74vh;
+  background:var(--bg-elev);
+}
+table.snap-table{ width:100%; border-collapse:collapse; font-family:var(--font-mono); font-size:12.5px; white-space:nowrap; }
+table.snap-table thead th{
+  position:sticky; top:0; z-index:2;
+  background:repeating-linear-gradient(180deg, var(--gloss-top) 0px, var(--gloss-top) 1px, transparent 1px, transparent 3px), var(--bg-sunk);
+  border-bottom:1.5px solid var(--line-str);
+  padding:9px 12px;
+  text-align:right;
+  font-family:var(--font-body);
+  font-size:10px; text-transform:uppercase; letter-spacing:.7px;
+  color:var(--ink-faint); font-weight:700;
+}
+table.snap-table thead th:first-child,
+table.snap-table thead th:nth-child(2){ text-align:left; }
+table.snap-table tbody td{
+  padding:7px 12px;
+  border-bottom:1px solid var(--line);
+  text-align:right;
+  color:var(--ink);
+}
+table.snap-table tbody td:first-child,
+table.snap-table tbody td:nth-child(2){ text-align:left; }
+table.snap-table tbody tr{ transition:background .1s ease; animation:cardRise .3s cubic-bezier(.22,.9,.3,1) both; animation-delay:var(--d,0s); }
+table.snap-table tbody tr.clickable{ cursor:pointer; }
+table.snap-table tbody tr.clickable:hover{ background:var(--bg-well); }
+table.snap-table tbody tr.flag{ background:var(--warn-bg); }
+table.snap-table tbody tr.flag:hover{ background:color-mix(in srgb, var(--warn-bg) 70%, var(--bg-well)); }
+table.snap-table tbody tr.hot{ background:var(--current-bg); }
+table.snap-table tbody tr.hot:hover{ background:color-mix(in srgb, var(--current-bg) 70%, var(--bg-well)); }
+table.snap-table tbody tr.hot td:first-child{ color:var(--current); font-weight:700; }
+table.snap-table .idx-cell.latest{ color:var(--up); font-weight:700; }
+table.snap-table .flag-dot{ color:var(--warn); font-weight:700; }
+table.snap-table .hot-inline{
+  display:inline-flex; align-items:center; gap:4px; margin-left:6px;
+  font-size:8.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+  color:var(--current); border:1px solid var(--current); border-radius:50px; padding:1px 6px 1px 4px;
+}
+.hot-inline .hot-dot{ width:4px; height:4px; border-radius:50%; background:var(--current); animation:ping 2.6s ease-in-out infinite; }
+
+table.snap-table tbody tr.landed{ animation:rowLandGlow 1.1s ease-out 2 !important; }
+@keyframes rowLandGlow{ 0%{ background:var(--current-bg);} 100%{ background:transparent;} }
+
+/* ===== FOOTER ===== */
+.footer{
+  color:var(--ink-faint); font-size:11px; margin-top:16px; padding:0 4px;
+  display:flex; flex-direction:column; gap:3px; line-height:1.5;
+}
+
+/* ===== JUMP BUTTON — fixed, static position, no roaming, no strobe ===== */
+#jumpBtn{
+  position:fixed; left:50%; bottom:18px; transform:translateX(-50%);
+  z-index:200;
+  display:flex; align-items:center; gap:9px;
+  background:linear-gradient(180deg, var(--gloss-top), transparent 55%), var(--current);
+  color:#F5F2E8; border:1.5px solid var(--line-str);
+  border-radius:50px; padding:12px 20px;
+  font-family:var(--font-body); font-size:12.5px; font-weight:700; letter-spacing:.2px;
+  cursor:pointer; white-space:nowrap; max-width:calc(100vw - 28px); overflow:hidden; text-overflow:ellipsis;
+  box-shadow:0 6px 18px var(--shadow2), inset 0 1px 0 rgba(255,255,255,0.3);
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+#jumpBtn:active{ transform:translateX(-50%) translateY(1px) scale(.97); }
+#jumpBtn .jump-glyph{ font-size:13px; flex-shrink:0; }
+#jumpBtn.shake{ animation:settleShake .4s ease-in-out 1; }
+@keyframes settleShake{
+  0%,100%{ transform:translateX(-50%); }
+  25%{ transform:translateX(calc(-50% - 5px)); }
+  50%{ transform:translateX(calc(-50% + 5px)); }
+  75%{ transform:translateX(calc(-50% - 3px)); }
+}
+
+/* ===== STRIKE DETAIL SHEET ===== */
+#strikeOverlay{
+  display:none; position:fixed; inset:0; z-index:1000;
+  background:rgba(20,17,12,0.5); backdrop-filter:blur(3px);
+}
+[data-theme="dark"] #strikeOverlay{ background:rgba(0,0,0,0.65); }
+#strikeOverlay.open{ display:flex; align-items:flex-end; }
+#strikeSheet{
+  width:100%; max-height:92vh; margin:0 auto;
+  background:var(--bg-elev);
+  border:1.5px solid var(--line-str); border-bottom:none;
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -8px 30px var(--shadow2);
+  display:flex; flex-direction:column; overflow:hidden;
+  animation:sheetUp .32s cubic-bezier(.22,.9,.3,1) both;
+}
+@keyframes sheetUp{ from{ transform:translateY(100%);} to{ transform:translateY(0);} }
+.sheet-grip{ width:38px; height:4px; border-radius:3px; background:var(--line-str); margin:9px auto 4px; flex-shrink:0; }
+
+.sheet-head{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+  padding:8px 16px 12px; border-bottom:1.5px solid var(--line);
+  background:repeating-linear-gradient(180deg, var(--gloss-top) 0px, var(--gloss-top) 1px, transparent 1px, transparent 3px), var(--bg-sunk);
+  flex-shrink:0;
+}
+.sheet-title{ font-family:var(--font-display); font-weight:700; font-size:17px; color:var(--ink); }
+.sheet-sub{ font-size:11.5px; color:var(--ink-dim); margin-top:3px; font-family:var(--font-mono); }
+.sheet-close{
+  width:32px; height:32px; flex-shrink:0;
+  background:var(--bg-well); border:1.5px solid var(--line-str); border-radius:9px;
+  color:var(--ink-dim); font-size:15px; cursor:pointer;
+}
+.sheet-close:active{ transform:scale(.94); }
+
+.sheet-stats{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; padding:10px 16px; background:var(--bg-elev); border-bottom:1px solid var(--line); flex-shrink:0; }
+.sheet-stats .s-l{ font-size:9.5px; text-transform:uppercase; letter-spacing:.8px; color:var(--ink-faint); font-weight:700; }
+.sheet-stats .s-v{ font-family:var(--font-mono); font-size:14.5px; font-weight:700; color:var(--ink); margin-top:1px; }
+
+.strike-list-head{
+  display:flex; align-items:center; padding:8px 14px;
+  background:var(--bg-sunk); border-bottom:1.5px solid var(--line);
+  font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; color:var(--ink-faint);
+  flex-shrink:0;
+}
+.slh-put{ flex:1; text-align:right; color:var(--down); padding-right:10px; }
+.slh-strike{ width:88px; text-align:center; flex-shrink:0; }
+.slh-call{ flex:1; text-align:left; color:var(--current); padding-left:10px; }
+
+.sheet-body{ overflow-y:auto; padding:2px 0 14px; -webkit-overflow-scrolling:touch; }
+
+.strike-row{ display:flex; align-items:center; padding:5px 10px; border-bottom:1px solid var(--line); }
+.strike-row.atm{ background:var(--up-bg); }
+.sr-put,.sr-call{ flex:1; min-width:0; display:flex; align-items:center; height:28px; }
+.sr-put{ justify-content:flex-end; } .sr-call{ justify-content:flex-start; }
+.sr-strike{ width:88px; flex-shrink:0; text-align:center; font-weight:700; font-size:14.5px; color:var(--ink); font-family:var(--font-mono); position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; line-height:1.15; padding:5px 6px; box-sizing:border-box; }
+.strike-row.atm .sr-strike{ color:var(--up); }
+.sr-iv{ font-size:10.5px; color:var(--ink-faint); font-weight:500; font-family:var(--font-mono); }
+.sr-atm-dot{ position:absolute; top:-3px; font-size:9px; color:var(--up); }
+.sr-bar{ height:20px; border-radius:4px; display:flex; align-items:center; min-width:2px; max-width:100%; font-size:11.5px; font-weight:700; font-family:var(--font-mono); white-space:nowrap; transition:width .5s cubic-bezier(.22,.9,.3,1); }
+.sr-bar.put{ background:linear-gradient(90deg, color-mix(in srgb, var(--down) 55%, transparent), var(--down)); justify-content:flex-start; padding-left:7px; color:#fff; border-radius:4px 2px 2px 4px; }
+.sr-bar.call{ background:linear-gradient(90deg, var(--current), color-mix(in srgb, var(--current) 55%, transparent)); justify-content:flex-end; padding-right:7px; color:#fff; border-radius:2px 4px 4px 2px; }
+.sr-bar-label{ text-shadow:0 1px 2px rgba(0,0,0,.25); }
+.sr-num-outside{ font-size:11.5px; font-weight:700; color:var(--ink-dim); padding:0 5px; font-family:var(--font-mono); }
+.sr-num-outside.zero-num{ color:var(--ink-faint); font-weight:500; }
+
+.strike-row.min-vol .sr-strike{ box-shadow:inset 0 0 0 2px var(--warn); border-radius:6px; }
+.strike-row.min-vol .sr-iv{ color:var(--warn) !important; font-weight:800 !important; display:inline-flex; align-items:center; gap:4px; }
+.min-vol-tag{ font-size:8px; letter-spacing:.5px; text-transform:uppercase; color:var(--warn); border:1px solid var(--warn); border-radius:50px; padding:0 5px; margin-top:2px; }
+
+.sheet-empty{ padding:40px 22px; text-align:center; color:var(--ink-dim); font-size:13px; }
+
+::-webkit-scrollbar{ width:8px; height:8px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{ background:var(--line-str); border-radius:99px; }
 </style>
 </head>
 <body>
 
-<!-- Theme toggle — always visible -->
-<button id="themeBtn" onclick="toggleTheme()">
-  <span class="icon" id="themeIcon">🌙</span>
-  <span id="themeLabel">night mode</span>
-</button>
+<div class="rainbow-bar"></div>
+<div class="fluid-field"><span></span><span></span><span></span></div>
 
-<!-- Timezone toggle — new, always visible -->
-<button id="tzBtn" onclick="toggleTz()" title="toggle timestamp timezone">
-  <span class="icon" id="tzIcon">🌐</span>
-  <span id="tzLabel">utc</span>
-</button>
+<div id="shell">
 
-<!-- Jump to 0.99 dte row — big ass button -->
-<button id="jumpDteBtn" onclick="jumpToDteHot()" title="scroll to the nearest-expiry (lowest dte) row">
-  <span class="jump-icon">🍄</span>
-  <span class="jump-label">JUMP TO DTE</span>
-  <span class="jump-icon">🍄</span>
-</button>
-
-<!-- ===== DROP ZONE ===== -->
-<div id="dropzone" onclick="document.getElementById('fileInput').click()">
-  <div class="dropzone-inner">
-    <span class="dz-mushroom">🍄</span>
-    <div class="dz-title">vol2vol · snapshot log</div>
-    <div class="dz-sub">drop your <em>vol2vol.db</em> here to begin<span class="dz-cursor"></span></div>
-    <button class="dz-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">
-      🌿 open database file
-    </button>
-    <div class="dz-hint">drag &amp; drop also works</div>
+  <!-- ===== IMPORT SCREEN ===== -->
+  <div id="dropzone" onclick="document.getElementById('fileInput').click()">
+    <div class="import-card">
+      <div class="import-glyph">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--ink-dim)">
+          <ellipse cx="12" cy="5.5" rx="8" ry="2.8"></ellipse>
+          <path d="M4 5.5v13c0 1.5 3.5 2.8 8 2.8s8-1.3 8-2.8v-13"></path>
+          <path d="M4 12c0 1.5 3.5 2.8 8 2.8s8-1.3 8-2.8"></path>
+        </svg>
+      </div>
+      <div class="import-title">Import Database</div>
+      <div class="import-sub" id="importSub">Select or drop your <strong>vol2vol.db</strong> file to begin.</div>
+      <button class="import-btn" onclick="event.stopPropagation(); document.getElementById('fileInput').click()">Choose File</button>
+      <div class="import-hint">drag &amp; drop supported</div>
+    </div>
+    <input type="file" id="fileInput" accept=".db">
   </div>
-  <input type="file" id="fileInput" accept=".db">
+
+  <!-- ===== APP ===== -->
+  <div id="app">
+
+    <div class="titlebar">
+      <div class="brand">
+        <span class="brand-mark">vol2vol</span>
+        <span class="brand-sub" id="topmeta">snapshot log</span>
+      </div>
+      <div class="title-controls">
+        <button class="chrome-btn wide" id="viewModeBtn" onclick="toggleViewMode()" title="Switch to desktop table view">
+          <span id="viewModeIcon">Desktop</span>
+        </button>
+        <button class="chrome-btn" id="tzBtn" onclick="toggleTz()" title="Toggle timestamp timezone">🌐</button>
+        <button class="chrome-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle appearance">
+          <span id="themeIcon">☾</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="overview" id="overview"></div>
+
+    <div class="segment">
+      <div class="segment-indicator" id="segIndicator"></div>
+      <button class="seg-btn active" id="segBtnIntraday" onclick="switchTab('intraday')">
+        Intraday <span class="seg-count" id="countIntraday"></span>
+      </button>
+      <button class="seg-btn" id="segBtnOi" onclick="switchTab('oi')">
+        Open Interest <span class="seg-count" id="countOi"></span>
+      </button>
+    </div>
+
+    <!-- INTRADAY -->
+    <div class="view active" id="viewIntraday">
+      <div class="section-head">
+        <span class="section-title">Snapshot Log</span>
+        <span class="section-hint">latest 300</span>
+      </div>
+      <div class="snap-list" id="logBody"></div>
+      <div class="footer">
+        <span id="footerLeft"></span>
+        <span id="footerRight"></span>
+      </div>
+    </div>
+
+    <!-- OPEN INTEREST -->
+    <div class="view" id="viewOi">
+      <div class="section-head">
+        <span class="section-title">Open Interest Log</span>
+        <span class="section-hint">latest 300</span>
+      </div>
+      <div class="snap-list" id="oiBody"></div>
+      <div class="footer">
+        <span id="footerLeftOi"></span>
+        <span id="footerRightOi"></span>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
-<!-- ===== APP ===== -->
-<div id="app">
-  <div class="topbar">
-    <div class="title-group">
-      <span class="title-icon">🍄</span>
-      <div>
-        <div class="title">vol2vol<span class="tick"> ✿ </span>log</div>
-        <div class="title-tagline">options flow snapshot viewer</div>
-      </div>
-    </div>
-    <div class="topbar-right">
-      <div class="meta-pill" id="topmeta"></div>
-    </div>
-  </div>
+<!-- ===== JUMP BUTTON — fixed in place, always visible, never relocates ===== -->
+<button id="jumpBtn" onclick="jumpToDteHot()" title="Scroll to the current contract's anchor row">
+  <span class="jump-glyph">◆</span>
+  <span class="jump-label" id="jumpLabel">Jump to Current DTE</span>
+</button>
 
-  <div class="stats" id="statsBar"></div>
-
-  <div class="tabs">
-    <button class="tab-btn active" id="tabBtnIntraday" onclick="switchTab('intraday')">
-      📈 intraday <span class="tab-count" id="tabCountIntraday"></span>
-    </button>
-    <button class="tab-btn" id="tabBtnOi" onclick="switchTab('oi')">
-      🍂 open interest <span class="tab-count" id="tabCountOi"></span>
-    </button>
-  </div>
-
-  <!-- ===== INTRADAY VIEW ===== -->
-  <div class="view active" id="viewIntraday">
-    <div class="section-head">
-      <div class="section-label">
-        <span class="leaf">🌿</span>
-        snapshot log — latest 300
-      </div>
-      <span class="section-hint">Δ vs prior fetch</span>
-    </div>
-
-    <div class="tablewrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th id="tsHeaderIntraday">fetched_at (utc)</th>
-            <th>Δt</th>
-            <th>future</th>
-            <th>fut chg</th>
-            <th>vol</th>
-            <th>vol chg</th>
-            <th>Δvol</th>
-            <th>put oi</th>
-            <th>Δ put oi</th>
-            <th>call oi</th>
-            <th>Δ call oi</th>
-            <th>pc ratio</th>
-            <th>Δpc</th>
-            <th>dte</th>
-          </tr>
-        </thead>
-        <tbody id="logBody"></tbody>
-      </table>
-    </div>
-
-    <div class="footer">
-      <span class="footer-leaf">🌾</span>
-      <span id="footerLeft"></span>
-      <span class="blink" id="footerRight"></span>
-      <span class="footer-leaf">🌾</span>
-    </div>
-  </div>
-
-  <!-- ===== OI VIEW ===== -->
-  <div class="view" id="viewOi">
-    <div class="section-head">
-      <div class="section-label">
-        <span class="leaf">🍂</span>
-        open interest log — latest 300
-      </div>
-      <span class="section-hint">raw sync lines</span>
-    </div>
-
-    <div class="tablewrap">
-      <table>
-        <thead>
-          <tr>
-            <th>#</th>
-            <th id="tsHeaderOi">fetched_at (utc)</th>
-            <th>Δt</th>
-            <th>future</th>
-            <th>fut chg</th>
-            <th>vol</th>
-            <th>vol chg</th>
-            <th>Δvol</th>
-            <th>put oi</th>
-            <th>Δ put oi</th>
-            <th>call oi</th>
-            <th>Δ call oi</th>
-            <th>pc ratio</th>
-            <th>Δpc</th>
-            <th>dte</th>
-          </tr>
-        </thead>
-        <tbody id="oiBody"></tbody>
-      </table>
-    </div>
-
-    <div class="footer">
-      <span class="footer-leaf">🍂</span>
-      <span id="footerLeftOi"></span>
-      <span class="blink" id="footerRightOi"></span>
-      <span class="footer-leaf">🍂</span>
-    </div>
-  </div>
-</div>
-
-<!-- ===== STRIKE DETAIL MODAL (new) — click a snapshot row to see per-strike breakdown ===== -->
+<!-- ===== STRIKE DETAIL SHEET ===== -->
 <div id="strikeOverlay" onclick="if(event.target===this) closeStrikeModal()">
-  <div id="strikeModal">
-    <div class="strike-modal-head">
+  <div id="strikeSheet">
+    <div class="sheet-grip"></div>
+    <div class="sheet-head">
       <div>
-        <div class="strike-modal-title"><span>🎯</span><span id="strikeModalTitle">strike breakdown</span></div>
-        <div class="strike-modal-sub" id="strikeModalSub"></div>
+        <div class="sheet-title" id="strikeModalTitle">Strike Breakdown</div>
+        <div class="sheet-sub" id="strikeModalSub"></div>
       </div>
-      <button class="strike-modal-close" onclick="closeStrikeModal()">✕</button>
+      <button class="sheet-close" onclick="closeStrikeModal()">✕</button>
     </div>
-    <div class="strike-modal-stats" id="strikeModalStats"></div>
+    <div class="sheet-stats" id="strikeModalStats"></div>
     <div class="strike-list-head">
-      <span class="slh-put">◀ put oi</span>
+      <span class="slh-put">◂ put oi</span>
       <span class="slh-strike">strike</span>
-      <span class="slh-call">call oi ▶</span>
+      <span class="slh-call">call oi ▸</span>
     </div>
-    <div class="strike-modal-body">
+    <div class="sheet-body">
       <div id="strikeTableBody"></div>
     </div>
   </div>
@@ -1167,129 +612,124 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
 <script>
-/* ===== THEME ===== */
-function toggleTheme() {
-  const isNight = document.documentElement.getAttribute('data-theme') === 'night';
-  document.documentElement.setAttribute('data-theme', isNight ? 'day' : 'night');
-  document.getElementById('themeIcon').textContent  = isNight ? '🌙' : '☀️';
-  document.getElementById('themeLabel').textContent = isNight ? 'night mode' : 'day mode';
-  try { localStorage.setItem('v2v-theme', isNight ? 'day' : 'night'); } catch(e){}
+/* ===================== THEME ===================== */
+function toggleTheme(){
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☾' : '☀';
+  try{ localStorage.setItem('v2v-theme', isDark ? 'light' : 'dark'); }catch(e){}
 }
-(function initTheme() {
-  let t = 'day';
-  try { t = localStorage.getItem('v2v-theme') || 'day'; } catch(e){}
-  document.documentElement.setAttribute('data-theme', t);
-  document.getElementById('themeIcon').textContent  = t === 'night' ? '☀️' : '🌙';
-  document.getElementById('themeLabel').textContent = t === 'night' ? 'day mode' : 'night mode';
+(function initTheme(){
+  let t = 'light';
+  try{ t = localStorage.getItem('v2v-theme') || 'light'; }catch(e){}
+  if(t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+  document.getElementById('themeIcon').textContent = t === 'dark' ? '☀' : '☾';
 })();
 
-/* ===== TZ TOGGLE (new — utc <> bkk, display-only, does not touch stored data) ===== */
-let tzMode = 'utc'; // 'utc' or 'bkk' — utc is the default; bkk toggle stays available
+/* ===================== VIEW MODE (MOBILE CARDS / DESKTOP TABLE) ===================== */
+let viewMode = 'mobile';
+function applyViewModeUI(){
+  const isPc = viewMode === 'pc';
+  document.body.classList.toggle('pc-view', isPc);
+  document.getElementById('viewModeIcon').textContent = isPc ? 'Mobile' : 'Desktop';
+  document.getElementById('viewModeBtn').title = isPc ? 'Switch to mobile card view' : 'Switch to desktop table view';
+}
+function toggleViewMode(){
+  viewMode = viewMode === 'pc' ? 'mobile' : 'pc';
+  try{ localStorage.setItem('v2v-viewmode', viewMode); }catch(e){}
+  applyViewModeUI();
+  if(typeof db !== 'undefined' && db){ try{ render(); }catch(e){} }
+}
+(function initViewMode(){
+  let saved = null;
+  try{ saved = localStorage.getItem('v2v-viewmode'); }catch(e){}
+  viewMode = (saved === 'pc' || saved === 'mobile') ? saved : 'mobile';
+  applyViewModeUI();
+})();
 
-function applyTzUI() {
+/* ===================== TZ TOGGLE (display-only) ===================== */
+let tzMode = 'utc';
+function applyTzUI(){
   const isBkk = tzMode === 'bkk';
-  document.getElementById('tzIcon').textContent  = isBkk ? '🇹🇭' : '🌐';
-  document.getElementById('tzLabel').textContent = isBkk ? 'bkk (utc+7)' : 'utc';
-  const introHeader = document.getElementById('tsHeaderIntraday');
-  const oiHeader = document.getElementById('tsHeaderOi');
-  if (introHeader) introHeader.textContent = isBkk ? 'fetched_at (bkk)' : 'fetched_at (utc)';
-  if (oiHeader) oiHeader.textContent = isBkk ? 'fetched_at (bkk)' : 'fetched_at (utc)';
+  document.getElementById('tzBtn').title = isBkk ? 'Showing BKK (UTC+7) — tap for UTC' : 'Showing UTC — tap for BKK';
+  document.getElementById('tzBtn').textContent = isBkk ? 'BKK' : '🌐';
 }
-
-function toggleTz() {
+function toggleTz(){
   tzMode = tzMode === 'utc' ? 'bkk' : 'utc';
-  try { localStorage.setItem('v2v-tz', tzMode); } catch(e){}
+  try{ localStorage.setItem('v2v-tz', tzMode); }catch(e){}
   applyTzUI();
-  // Re-render tables/footers with the new timezone; safe no-op if no db loaded yet
-  if (typeof db !== 'undefined' && db) {
-    try { render(); } catch(e){}
-  }
+  if(typeof db !== 'undefined' && db){ try{ render(); }catch(e){} }
 }
-
-(function initTz() {
-  try { tzMode = localStorage.getItem('v2v-tz') || 'utc'; } catch(e){}
+(function initTz(){
+  try{ tzMode = localStorage.getItem('v2v-tz') || 'utc'; }catch(e){}
   applyTzUI();
 })();
 
-function jumpToDteHot() {
-  const btn = document.getElementById('jumpDteBtn');
-  // Prefer a hot row in whichever tab is currently active, fall back to any hot row.
-  const activeView = document.querySelector('.view.active');
-  const target = (activeView && activeView.querySelector('tbody tr.dte-hot'))
-    || document.querySelector('tbody tr.dte-hot');
+/* ===================== SEGMENTED CONTROL ===================== */
+function switchTab(name){
+  const isIntraday = name === 'intraday';
+  document.getElementById('viewIntraday').classList.toggle('active', isIntraday);
+  document.getElementById('viewOi').classList.toggle('active', !isIntraday);
+  document.getElementById('segBtnIntraday').classList.toggle('active', isIntraday);
+  document.getElementById('segBtnOi').classList.toggle('active', !isIntraday);
+  const ind = document.getElementById('segIndicator');
+  ind.style.transform = isIntraday ? 'translateX(0)' : 'translateX(100%)';
+}
 
-  if (!target) {
-    // nothing to jump to yet — shake the button to say so
-    if (btn) {
-      btn.classList.remove('no-target');
-      void btn.offsetWidth; // restart animation
-      btn.classList.add('no-target');
-      setTimeout(() => btn.classList.remove('no-target'), 500);
+/* ===================== JUMP TO CURRENT DTE ===================== */
+function jumpToDteHot(){
+  const btn = document.getElementById('jumpBtn');
+  const activeView = document.querySelector('.view.active');
+  const target = (activeView && activeView.querySelector('.snap-card.hot, tr.hot'))
+    || document.querySelector('.snap-card.hot, tr.hot');
+
+  if(!target){
+    if(btn){
+      btn.classList.remove('shake');
+      void btn.offsetWidth;
+      btn.classList.add('shake');
+      setTimeout(()=>btn.classList.remove('shake'), 420);
     }
     return;
   }
 
-  // If the hottest row lives in the other tab, switch to it first.
   const ownerView = target.closest('.view');
-  if (ownerView && !ownerView.classList.contains('active')) {
+  if(ownerView && !ownerView.classList.contains('active')){
     switchTab(ownerView.id === 'viewOi' ? 'oi' : 'intraday');
   }
 
-  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  target.scrollIntoView({ behavior:'smooth', block:'center' });
 
-  // extra flash on landing so the eye finds it immediately
-  document.querySelectorAll('tbody tr.dte-landed').forEach(r => r.classList.remove('dte-landed'));
-  // force reflow so the animation retriggers even if it was just added
+  document.querySelectorAll('.snap-card.landed, tr.landed').forEach(r=>r.classList.remove('landed'));
   void target.offsetWidth;
-  target.classList.add('dte-landed');
-  setTimeout(() => target.classList.remove('dte-landed'), 1900);
+  target.classList.add('landed');
+  setTimeout(()=>target.classList.remove('landed'), 2300);
 }
 
-/* ---- dynamic "current contract" tracking ----
-   dte doesn't run once per calendar day — it counts down from ~1 (or whatever
-   the fresh value happens to be, not always exactly 1.00) to ~0, then RESETS
-   back up when the next contract starts, and this can loop multiple times
-   within the same UTC date. Anchoring off "the highest dte seen on today's
-   calendar date" breaks in that world. Instead we detect the most recent
-   reset directly: walk backwards in time from the latest fetch and keep
-   climbing as long as dte is non-decreasing (still the same, still-current
-   contract) — the moment dte drops going further back, we've crossed into
-   the previous contract's tail end, so we stop. Whatever we landed on is the
-   start-of-current-contract row: the freshest anchor, guaranteed recent. */
-let currentDteAnchorVal = null; // dte value at the start of the current (most recent) contract cycle
-let currentDteAnchorTs = null;  // that row's exact fetched_at — used to highlight this exact row
+/* ---- current-contract anchor tracking (unchanged logic, restyled output) ---- */
+let currentDteAnchorVal = null;
+let currentDteAnchorTs = null;
 
-function walkCycleAnchor(rows) {
-  // rows: [dte, fetched_at][], already sorted newest-first, from a SINGLE table's own timeline.
-  if (!rows.length) return { anchorVal: null, anchorTs: null };
-  const EPS = 0.01; // tolerance for float noise between consecutive same-source fetches
+function walkCycleAnchor(rows){
+  if(!rows.length) return { anchorVal:null, anchorTs:null };
+  const EPS = 0.01;
   let anchorVal = rows[0][0];
   let anchorTs = rows[0][1];
-  for (let i = 1; i < rows.length; i++) {
+  for(let i=1;i<rows.length;i++){
     const [dte, ts] = rows[i];
-    if (dte >= anchorVal - EPS) {
-      // still non-decreasing as we look further back — same contract cycle, keep walking
-      if (dte > anchorVal) anchorVal = dte;
+    if(dte >= anchorVal - EPS){
+      if(dte > anchorVal) anchorVal = dte;
       anchorTs = ts;
-    } else {
-      // dropped going further back in time — crossed into the previous cycle's tail, stop
-      break;
-    }
+    } else break;
   }
   return { anchorVal, anchorTs };
 }
 
-function computeCycleAnchor() {
-  // IMPORTANT: walk each table's dte timeline SEPARATELY, not merged. intraday and oi
-  // are captured by independent fetch jobs and interleave in time without moving in
-  // lockstep — merging them before walking backward means a row from one table that
-  // happens to land slightly lower than the other table's concurrent reading looks like
-  // a "cycle boundary" and halts the walk early, even though it's just cross-source
-  // jitter, not an actual contract rollover. Walking each source on its own avoids that.
-  let best = { anchorVal: null, anchorTs: null };
-  ['intraday', 'oi'].forEach(t => {
+function computeCycleAnchor(){
+  let best = { anchorVal:null, anchorTs:null };
+  ['intraday','oi'].forEach(t=>{
     const check = q(`SELECT name FROM sqlite_master WHERE type='table' AND name='${t}'`);
-    if (!check.length) return;
+    if(!check.length) return;
     const rows = q(`
       SELECT dte, fetched_at FROM (
         SELECT fetched_at, MAX(dte) AS dte
@@ -1300,194 +740,132 @@ function computeCycleAnchor() {
       ORDER BY fetched_at DESC LIMIT 500
     `);
     const { anchorVal, anchorTs } = walkCycleAnchor(rows);
-    if (anchorTs !== null && (best.anchorTs === null || anchorTs > best.anchorTs)) {
+    if(anchorTs !== null && (best.anchorTs === null || anchorTs > best.anchorTs)){
       best = { anchorVal, anchorTs };
     }
   });
   return best;
 }
 
-function anchorDateStr(ts) {
-  // Shows the calendar date THIS dte reading is from (the anchor's own fetch time),
-  // not a projected future expiry instant — projecting forward by `dte` days and then
-  // shifting +7h for bkk can legitimately cross midnight (correct math, wrong intent).
-  // We want "which day is this DTE reading for", which stays the same day in both
-  // tz views for any reading taken well clear of the UTC day boundary.
-  if (ts == null) return null;
-  try {
+function anchorDateStr(ts){
+  if(ts == null) return null;
+  try{
     let base = new Date(ts.includes('Z') || ts.includes('+') ? ts : ts + 'Z');
-    if (isNaN(base.getTime())) return null;
-    if (typeof tzMode !== 'undefined' && tzMode === 'bkk') {
-      base = new Date(base.getTime() + 7 * 3600 * 1000);
-    }
+    if(isNaN(base.getTime())) return null;
+    if(typeof tzMode !== 'undefined' && tzMode === 'bkk') base = new Date(base.getTime() + 7*3600*1000);
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return `${months[base.getUTCMonth()]} ${base.getUTCDate()}`;
-  } catch (e) {
-    return null;
-  }
+  }catch(e){ return null; }
 }
 
-function updateJumpButton() {
+function updateJumpButton(){
   const { anchorVal, anchorTs } = computeCycleAnchor();
   currentDteAnchorVal = anchorVal;
   currentDteAnchorTs = anchorTs;
-  const labelEl = document.querySelector('#jumpDteBtn .jump-label');
-  const btn = document.getElementById('jumpDteBtn');
-  if (!labelEl) return;
-  if (anchorVal === null) {
-    labelEl.textContent = 'JUMP TO DTE';
-    if (btn) btn.title = 'no dte data loaded yet';
+  const labelEl = document.getElementById('jumpLabel');
+  const btn = document.getElementById('jumpBtn');
+  if(!labelEl) return;
+  if(anchorVal === null){
+    labelEl.textContent = 'Jump to Current DTE';
+    if(btn) btn.title = 'No DTE data loaded yet';
     return;
   }
   const dateStr = anchorDateStr(anchorTs);
-  labelEl.textContent = `JUMP TO ${anchorVal.toFixed(2)} DTE${dateStr ? ' · ' + dateStr : ''}`;
-  if (btn) btn.title = `scroll to the current contract's anchor row (dte ${anchorVal.toFixed(2)}${dateStr ? ', ' + dateStr : ''})`;
+  labelEl.textContent = `Jump to ${anchorVal.toFixed(2)} DTE${dateStr ? ' · ' + dateStr : ''}`;
+  if(btn) btn.title = `Scroll to the current contract's anchor row (DTE ${anchorVal.toFixed(2)}${dateStr ? ', ' + dateStr : ''})`;
 }
 
-/* ---- jump button roams randomly around the viewport ---- */
-(function floatJumpBtn() {
-  const btn = document.getElementById('jumpDteBtn');
-  if (!btn) return;
-  const margin = 16;
-
-  function moveRandom() {
-    const w = btn.offsetWidth || 260;
-    const h = btn.offsetHeight || 90;
-    const maxX = Math.max(margin, window.innerWidth - w - margin);
-    const maxY = Math.max(margin, window.innerHeight - h - margin);
-    const x = margin + Math.random() * (maxX - margin);
-    const y = margin + Math.random() * (maxY - margin);
-    btn.style.left = x + 'px';
-    btn.style.top = y + 'px';
-  }
-
-  moveRandom();
-  setInterval(moveRandom, 2400);
-  window.addEventListener('resize', moveRandom);
-})();
-
-/* ===== DB ===== */
+/* ===================== DB ===================== */
 let db;
-
 const DB_URL = 'https://raw.githubusercontent.com/0xtrvkc/itd-oi-db/main/data/vol2vol.db';
 
-function q(sql, params = []) {
+function q(sql, params = []){
   const res = db.exec(sql, params);
   return res.length ? res[0].values : [];
 }
 
-async function autoLoad() {
+async function autoLoad(){
   const dz = document.getElementById('dropzone');
-  const dzInner = dz.querySelector('.dropzone-inner');
+  const sub = document.getElementById('importSub');
+  const title = document.querySelector('.import-title');
 
-  // Show loading state inside the dropzone card
-  dzInner.innerHTML = `
-    <span class="dz-mushroom">🍄</span>
-    <div class="dz-title">loading data…</div>
-    <div class="dz-sub">fetching vol2vol.db from repository</div>
-    <div style="margin-top:18px;font-size:12px;color:var(--dim);font-family:var(--mono)">
-      ${DB_URL.replace('https://raw.githubusercontent.com/', 'github › ')}
-    </div>
-  `;
+  title.textContent = 'Loading Data';
+  sub.innerHTML = `Fetching <strong>vol2vol.db</strong> from repository&hellip;`;
 
-  try {
+  try{
     const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
-
-    const res = await fetch(`${DB_URL}?t=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(`HTTP ${res.status} — could not fetch database`);
+    const res = await fetch(`${DB_URL}?t=${Date.now()}`, { cache:'no-store' });
+    if(!res.ok) throw new Error(`HTTP ${res.status} — could not fetch database`);
     const buf = await res.arrayBuffer();
     db = new SQL.Database(new Uint8Array(buf));
 
     const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
-    if (!check.length) throw new Error('No "intraday" table found in database');
+    if(!check.length) throw new Error('No "intraday" table found in database');
 
     const sizeKb = (buf.byteLength / 1024).toFixed(1);
     document.getElementById('dropzone').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('topmeta').textContent = `src vol2vol.db :: ${sizeKb} kb :: auto-loaded`;
+    document.getElementById('topmeta').textContent = `vol2vol.db · ${sizeKb} kb · auto-loaded`;
 
     render();
-  } catch (err) {
-    dzInner.innerHTML = `
-      <span class="dz-mushroom">🍂</span>
-      <div class="dz-title">failed to load</div>
-      <div class="dz-sub" style="color:var(--red)">${err.message}</div>
-      <button class="dz-btn" style="margin-top:20px" onclick="autoLoad()">⟳ retry</button>
-    `;
+  }catch(err){
+    title.textContent = 'Import Failed';
+    sub.innerHTML = `<span class="import-error">${err.message}</span>`;
+    const existingRetry = document.getElementById('retryBtn');
+    if(!existingRetry){
+      const b = document.createElement('button');
+      b.id = 'retryBtn'; b.className = 'import-btn'; b.style.marginTop = '18px';
+      b.textContent = 'Retry';
+      b.onclick = (e)=>{ e.stopPropagation(); autoLoad(); };
+      document.querySelector('.import-card').appendChild(b);
+    }
   }
 }
 
-// Also keep drag-and-drop as fallback
 const dz = document.getElementById('dropzone');
-dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
-dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
-dz.addEventListener('drop', e => {
+dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag'); });
+dz.addEventListener('dragleave', ()=>dz.classList.remove('drag'));
+dz.addEventListener('drop', e=>{
   e.preventDefault(); dz.classList.remove('drag');
   loadFileManual(e.dataTransfer.files[0]);
 });
-document.getElementById('fileInput').addEventListener('change', e => loadFileManual(e.target.files[0]));
+document.getElementById('fileInput').addEventListener('change', e=>loadFileManual(e.target.files[0]));
 
-async function loadFileManual(file) {
+async function loadFileManual(file){
+  if(!file) return;
   const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${f}` });
   const buf = await file.arrayBuffer();
   db = new SQL.Database(new Uint8Array(buf));
 
   const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
-  if (!check.length) { alert('No "intraday" table found.'); return; }
+  if(!check.length){ alert('No "intraday" table found.'); return; }
 
   document.getElementById('dropzone').style.display = 'none';
   document.getElementById('app').style.display = 'block';
-  document.getElementById('topmeta').textContent = `src ${file.name} :: ${(file.size/1024).toFixed(1)} kb`;
+  document.getElementById('topmeta').textContent = `${file.name} · ${(file.size/1024).toFixed(1)} kb`;
 
   render();
 }
 
-// Auto-load on page open
 autoLoad();
 
-function fmtNum(v, d = 2) {
-  if (v === null || v === undefined) return '-';
-  return Number(v).toFixed(d);
-}
-function fmtInt(v) {
-  if (v === null || v === undefined) return '-';
-  return Number(v).toLocaleString();
-}
-function fmtTs(t) {
-  // Original behaviour (utc, string-based) preserved as fallback.
-  const legacyUtc = () => t.replace('T', ' ').replace(/\.\d+Z?$/, '').replace('+00:00', '');
-  if (typeof tzMode === 'undefined' || tzMode === 'utc') return legacyUtc();
-
-  // BKK mode (utc+7) — new, display-only conversion.
-  try {
+/* ===================== FORMAT HELPERS ===================== */
+function fmtNum(v, d = 2){ if(v === null || v === undefined) return '—'; return Number(v).toFixed(d); }
+function fmtInt(v){ if(v === null || v === undefined) return '—'; return Number(v).toLocaleString(); }
+function fmtTs(t){
+  const legacyUtc = () => t.replace('T',' ').replace(/\.\d+Z?$/,'').replace('+00:00','');
+  if(typeof tzMode === 'undefined' || tzMode === 'utc') return legacyUtc();
+  try{
     const d = new Date(t.includes('Z') || t.includes('+') ? t : t + 'Z');
-    if (isNaN(d.getTime())) return legacyUtc();
-    const bkk = new Date(d.getTime() + 7 * 3600 * 1000);
-    const pad = n => String(n).padStart(2, '0');
+    if(isNaN(d.getTime())) return legacyUtc();
+    const bkk = new Date(d.getTime() + 7*3600*1000);
+    const pad = n => String(n).padStart(2,'0');
     return `${bkk.getUTCFullYear()}-${pad(bkk.getUTCMonth()+1)}-${pad(bkk.getUTCDate())} ${pad(bkk.getUTCHours())}:${pad(bkk.getUTCMinutes())}:${pad(bkk.getUTCSeconds())}`;
-  } catch (e) {
-    return legacyUtc();
-  }
+  }catch(e){ return legacyUtc(); }
 }
-function tzSuffix() {
-  return (typeof tzMode !== 'undefined' && tzMode === 'bkk') ? 'bkk (utc+7)' : 'utc';
-}
-function deltaCell(curr, prev, d = 2, suffix = '') {
-  if (prev === null || prev === undefined) return '<span class="zero">—</span>';
-  const diff = curr - prev;
-  if (Math.abs(diff) < 1e-9) return '<span class="zero">0' + suffix + '</span>';
-  const cls = diff > 0 ? 'up' : 'down';
-  const sign = diff > 0 ? '+' : '';
-  return `<span class="${cls}">${sign}${diff.toFixed(d)}${suffix}</span>`;
-}
-function deltaSpark(curr, prev) {
-  if (prev === null || prev === undefined) return '';
-  const diff = curr - prev;
-  if (Math.abs(diff) < 1e-9) return '<span class="zero">·</span>';
-  return diff > 0 ? '<span class="up">▲</span>' : '<span class="down">▼</span>';
-}
+function tzSuffix(){ return (typeof tzMode !== 'undefined' && tzMode === 'bkk') ? 'bkk (utc+7)' : 'utc'; }
 
-function loadSnapshots(table, limit = 300) {
+function loadSnapshots(table, limit = 300){
   const snaps = q(`
     SELECT fetched_at, symbol, MAX(dte), MAX(future_price), MAX(future_chg),
            MAX(put_oi), MAX(call_oi), MAX(vol), MAX(vol_chg)
@@ -1496,153 +874,172 @@ function loadSnapshots(table, limit = 300) {
     ORDER BY fetched_at DESC
     LIMIT ${limit}
   `);
-  return snaps.map(r => {
+  return snaps.map(r=>{
     const [ts, sym, dte, fut, futChg, putOi, callOi, vol, volChg] = r;
-    const pc = callOi ? putOi / callOi : null;
-    return { ts, sym, dte, fut, futChg, putOi, callOi, vol, volChg, pc };
+    return { ts, sym, dte, fut, putOi, callOi, vol };
   });
 }
 
-function buildLogRowsHtml(withPc, medGap, tableName) {
-  return withPc.map((r, i) => {
+/* ===================== SNAPSHOT CARDS — DTE leads, only Δt kept ===================== */
+function buildLogCardsHtml(withPc, medGap, tableName){
+  return withPc.map((r, i)=>{
     const p = withPc[i+1] || null;
     const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
-    const gapStr = gapMin === null ? '<span class="zero">—</span>' : `${gapMin.toFixed(0)}m`;
+    const gapStr = gapMin === null ? '—' : `${gapMin.toFixed(0)}m`;
     const flag = p && gapMin > medGap * 2;
-    const pc = r.pc;
 
-    // Match the exact row that anchors the current (most recent) contract cycle —
-    // an exact timestamp match is unambiguous, unlike matching by value+calendar-date,
-    // which broke once dte started looping multiple times per day.
     const isDteHot = r.ts != null && currentDteAnchorTs != null && r.ts === currentDteAnchorTs;
-    const dteCell = isDteHot
-      ? `<span class="dte-hot-cell"><span class="dte-hot-dot"></span>${fmtNum(r.dte,2)}<span class="mushroom-shuttle"><span>🍄</span><span>🍄</span><span>🍄</span><span>🍄</span></span></span>`
+    const dteMarkup = isDteHot
+      ? `${fmtNum(r.dte,2)}<span class="hot-tag"><span class="hot-dot"></span>current</span>`
       : fmtNum(r.dte,2);
 
-    // New: make the row clickable to open the per-strike breakdown modal.
     const tsEscaped = String(r.ts).replace(/'/g, "\\'");
-    const rowClasses = [flag ? 'flag' : '', isDteHot ? 'dte-hot' : '', tableName ? 'clickable-row' : '']
+    const cardClasses = ['snap-card', flag ? 'flag' : '', isDteHot ? 'hot' : '', tableName ? 'clickable' : '']
       .filter(Boolean).join(' ');
-    const rowAttrs = tableName
-      ? `class="${rowClasses}" onclick="openStrikeModal('${tableName}','${tsEscaped}')" title="click for per-strike breakdown"`
-      : `class="${rowClasses}"`;
+    const cardAttrs = tableName
+      ? `class="${cardClasses}" onclick="openStrikeModal('${tableName}','${tsEscaped}')"`
+      : `class="${cardClasses}"`;
+    const delay = Math.min(i, 14) * 0.025;
 
-    return `<tr ${rowAttrs}>
-      <td class="idx num">${i === 0 ? `<span class="badge new">✿ latest</span>${withPc.length - i}` : withPc.length - i}</td>
-      <td class="ts">${fmtTs(r.ts)}</td>
-      <td class="delta num ${flag ? 'flagcell' : ''}">${gapStr}</td>
-      <td class="num">${fmtNum(r.fut,1)}</td>
-      <td class="num ${r.futChg>0?'up':r.futChg<0?'down':'zero'}">${r.futChg>0?'+':''}${fmtNum(r.futChg,1)}</td>
-      <td class="num">${fmtNum(r.vol,2)}</td>
-      <td class="num ${r.volChg>0?'up':r.volChg<0?'down':'zero'}">${r.volChg>0?'+':''}${fmtNum(r.volChg,2)}</td>
-      <td class="delta num">${deltaSpark(r.vol, p?.vol)} ${deltaCell(r.vol, p?.vol, 2)}</td>
-      <td class="num">${fmtInt(r.putOi)}</td>
-      <td class="delta num">${deltaCell(r.putOi, p?.putOi, 0)}</td>
-      <td class="num">${fmtInt(r.callOi)}</td>
-      <td class="delta num">${deltaCell(r.callOi, p?.callOi, 0)}</td>
-      <td class="num">${fmtNum(pc,3)}</td>
-      <td class="delta num">${deltaCell(pc, p?.pc, 3)}</td>
-      <td class="num">${dteCell}</td>
-    </tr>`;
+    return `<div ${cardAttrs} style="--d:${delay}s">
+      <div class="card-top">
+        <div class="dte-block">
+          <div class="dte-eyebrow"><span class="dte-label">DTE</span><span class="dte-value num">${dteMarkup}</span></div>
+        </div>
+        <div class="meta-block">
+          <span class="idx-badge ${i===0?'latest':''}">${i===0 ? 'LATEST' : '#'+(withPc.length - i)}</span>
+          <span class="ts-value">${fmtTs(r.ts)}</span>
+        </div>
+      </div>
+      <div class="card-mid">
+        <span class="dt-pill ${flag ? 'flag':''}"><span class="dt-key">Δt</span> ${gapStr}</span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><span class="m-label">Future</span><span class="m-value">${fmtNum(r.fut,1)}</span></div>
+        <div class="metric"><span class="m-label">Vol</span><span class="m-value">${fmtNum(r.vol,2)}</span></div>
+        <div class="metric"><span class="m-label">Put OI</span><span class="m-value">${fmtInt(r.putOi)}</span></div>
+        <div class="metric"><span class="m-label">Call OI</span><span class="m-value">${fmtInt(r.callOi)}</span></div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-function render() {
-  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
-  if (!check.length) return;
+/* ===================== SNAPSHOT TABLE — dense desktop view, every column visible ===================== */
+function buildLogTableHtml(withPc, medGap, tableName){
+  const rows = withPc.map((r, i)=>{
+    const p = withPc[i+1] || null;
+    const gapMin = p ? (new Date(r.ts) - new Date(p.ts)) / 60000 : null;
+    const gapStr = gapMin === null ? '—' : `${gapMin.toFixed(0)}m`;
+    const flag = p && gapMin > medGap * 2;
 
-  // Figure out the current lowest dte (across intraday + oi) before building any rows,
-  // so both tables' "hot" highlighting and the jump button stay in sync with it.
+    const isDteHot = r.ts != null && currentDteAnchorTs != null && r.ts === currentDteAnchorTs;
+    const hotMarkup = isDteHot ? `<span class="hot-inline"><span class="hot-dot"></span>current</span>` : '';
+
+    const totalOi = (r.putOi || 0) + (r.callOi || 0);
+    const tsEscaped = String(r.ts).replace(/'/g, "\\'");
+    const rowClasses = ['clickable', flag ? 'flag' : '', isDteHot ? 'hot' : ''].filter(Boolean).join(' ');
+    const rowAttrs = tableName
+      ? `class="${rowClasses}" onclick="openStrikeModal('${tableName}','${tsEscaped}')"`
+      : `class="${rowClasses.replace('clickable','').trim()}"`;
+    const delay = Math.min(i, 20) * 0.015;
+
+    return `<tr ${rowAttrs} style="--d:${delay}s">
+      <td class="idx-cell ${i===0?'latest':''}">${i===0 ? 'LATEST' : '#'+(withPc.length - i)}</td>
+      <td>${fmtTs(r.ts)}</td>
+      <td class="num">${fmtNum(r.dte,2)}${hotMarkup}</td>
+      <td class="num">${flag ? '<span class="flag-dot">⚠ </span>' : ''}${gapStr}</td>
+      <td class="num">${fmtNum(r.fut,1)}</td>
+      <td class="num">${fmtNum(r.vol,2)}</td>
+      <td class="num">${fmtInt(r.putOi)}</td>
+      <td class="num">${fmtInt(r.callOi)}</td>
+      <td class="num">${fmtInt(totalOi)}</td>
+      <td>${r.sym || '—'}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div class="snap-table-outer"><table class="snap-table">
+    <thead><tr>
+      <th>#</th><th>Timestamp</th><th>DTE</th><th>Δt</th><th>Future</th><th>Vol</th><th>Put OI</th><th>Call OI</th><th>Total OI</th><th>Symbol</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+/* ===================== RENDER ===================== */
+function render(){
+  const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='intraday'");
+  if(!check.length) return;
+
   updateJumpButton();
 
   const withPc = loadSnapshots('intraday', 300);
-  if (!withPc.length) return;
+  if(!withPc.length) return;
 
   const totalSnaps = q("SELECT COUNT(DISTINCT fetched_at) FROM intraday")[0][0];
   const totalRows  = q("SELECT COUNT(*) FROM intraday")[0][0];
   const [minTs, maxTs] = q("SELECT MIN(fetched_at), MAX(fetched_at) FROM intraday")[0];
   const symbol = withPc[0].sym;
-
-  // ---- stat strip (senior-quant lens) ----
   const latest = withPc[0];
 
-  // vol regime: realized dispersion of headline vol over visible window
-  const volsAll = withPc.map(r => r.vol).filter(v => v != null);
-  const volMean = volsAll.reduce((a,b)=>a+b,0) / volsAll.length;
-  const volMax = Math.max(...volsAll);
-  const volMin = Math.min(...volsAll);
-
-  // pc ratio drift: latest vs avg of window — flow positioning signal
-  const pcAll = withPc.map(r => r.pc).filter(v => v != null);
-  const pcMean = pcAll.reduce((a,b)=>a+b,0) / pcAll.length;
-
-  // staleness — gap since last fetch vs current time
-  const lastFetchMs = new Date(latest.ts).getTime();
-  const ageMin = (Date.now() - lastFetchMs) / 60000;
-
-  // median refresh cadence across window
   const gaps = [];
-  for (let i = 0; i < withPc.length - 1; i++) {
+  for(let i=0;i<withPc.length-1;i++){
     gaps.push((new Date(withPc[i].ts) - new Date(withPc[i+1].ts)) / 60000);
   }
   gaps.sort((a,b)=>a-b);
   const medGap = gaps.length ? gaps[Math.floor(gaps.length/2)] : 0;
 
-  // total OI now vs window-ago, for flow buildup
   const oldest = withPc[withPc.length - 1];
   const oiNow = latest.putOi + latest.callOi;
-  const oiOld = oldest.putOi + oldest.callOi;
-  const oiChgPct = oldest ? ((oiNow - oiOld) / oiOld * 100) : 0;
 
+  const lastFetchMs = new Date(latest.ts).getTime();
+  const ageMin = (Date.now() - lastFetchMs) / 60000;
   const ageFlag = ageMin > medGap * 2;
 
-  document.getElementById('statsBar').innerHTML = `
-    <div class="stat"><div class="l">🌿 symbol / dte</div><div class="v">${symbol} / ${fmtNum(latest.dte,2)}</div></div>
-    <div class="stat"><div class="l">📈 future</div><div class="v">${fmtNum(latest.fut,1)}</div><div class="sub">chg ${fmtNum(latest.futChg,1)}</div></div>
-    <div class="stat"><div class="l">🌊 vol (latest)</div><div class="v ${latest.volChg>=0?'up':'down'}">${fmtNum(latest.vol,2)}</div><div class="sub">chg ${latest.volChg>=0?'+':''}${fmtNum(latest.volChg,2)}</div></div>
-    <div class="stat"><div class="l">📊 vol range (win)</div><div class="v">${fmtNum(volMin,1)}–${fmtNum(volMax,1)}</div><div class="sub">avg ${fmtNum(volMean,2)}</div></div>
-    <div class="stat"><div class="l">🌸 pc ratio</div><div class="v">${fmtNum(latest.pc,3)}</div><div class="sub">win avg ${fmtNum(pcMean,3)}</div></div>
-    <div class="stat"><div class="l">🍂 total oi</div><div class="v">${fmtInt(oiNow)}</div><div class="sub ${oiChgPct>=0?'up':'down'}">${oiChgPct>=0?'+':''}${oiChgPct.toFixed(1)}% / ${withPc.length}snaps</div></div>
-    <div class="stat"><div class="l">⏱ cadence (med)</div><div class="v">${medGap.toFixed(0)}m</div><div class="sub">${gaps.length} gaps sampled</div></div>
-    <div class="stat"><div class="l">🕯 last fetch age</div><div class="v ${ageFlag?'down':''}">${ageMin.toFixed(0)}m</div><div class="sub">${ageFlag ? 'stale vs cadence' : 'in line'}</div></div>
+  document.getElementById('overview').innerHTML = `
+    <div class="tile lead">
+      <div><span class="tile-label">DTE</span><span class="tile-value">${fmtNum(latest.dte,2)}</span></div>
+      <span class="tile-sym">${symbol || ''}</span>
+    </div>
+    <div class="tile"><span class="tile-label">Future</span><span class="tile-value">${fmtNum(latest.fut,1)}</span></div>
+    <div class="tile"><span class="tile-label">Vol</span><span class="tile-value">${fmtNum(latest.vol,2)}</span></div>
+    <div class="tile"><span class="tile-label">Total OI</span><span class="tile-value">${fmtInt(oiNow)}</span><div class="tile-sub">put ${fmtInt(latest.putOi)} · call ${fmtInt(latest.callOi)}</div></div>
+    <div class="tile"><span class="tile-label">Cadence</span><span class="tile-value">${medGap.toFixed(0)}m</span><div class="tile-sub">${gaps.length} intervals</div></div>
+    <div class="tile"><span class="tile-label">Updated</span><span class="tile-value" style="${ageFlag?'color:var(--warn)':''}">${ageMin.toFixed(0)}m ago</span><div class="tile-sub">${ageFlag ? 'delayed' : 'on schedule'}</div></div>
   `;
 
-  document.getElementById('logBody').innerHTML = buildLogRowsHtml(withPc, medGap, 'intraday');
+  const logBodyEl = document.getElementById('logBody');
+  logBodyEl.className = viewMode === 'pc' ? '' : 'snap-list';
+  logBodyEl.innerHTML = viewMode === 'pc'
+    ? buildLogTableHtml(withPc, medGap, 'intraday')
+    : buildLogCardsHtml(withPc, medGap, 'intraday');
 
   document.getElementById('footerLeft').textContent =
-    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} ${tzSuffix()}`;
+    `${totalSnaps} fetched versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} ${tzSuffix()}`;
   document.getElementById('footerRight').textContent =
-    `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
+    `showing ${withPc.length} of ${totalSnaps} · flagged where Δt exceeds 2× median cadence`;
 
-  document.getElementById('tabCountIntraday').textContent = `${totalSnaps}`;
+  document.getElementById('countIntraday').textContent = `${totalSnaps}`;
 
   renderOi();
 }
 
-function switchTab(name) {
-  const isIntraday = name === 'intraday';
-  document.getElementById('viewIntraday').classList.toggle('active', isIntraday);
-  document.getElementById('viewOi').classList.toggle('active', !isIntraday);
-  document.getElementById('tabBtnIntraday').classList.toggle('active', isIntraday);
-  document.getElementById('tabBtnOi').classList.toggle('active', !isIntraday);
-}
-
-function renderOi() {
+function renderOi(){
   const check = q("SELECT name FROM sqlite_master WHERE type='table' AND name='oi'");
-  if (!check.length) {
-    document.getElementById('tabCountOi').textContent = '0';
+  if(!check.length){
+    document.getElementById('countOi').textContent = '0';
     document.getElementById('oiBody').innerHTML =
-      '<tr><td colspan="15" style="text-align:center;color:var(--dim)">no "oi" table found — re-run the fetch script with the updated parser</td></tr>';
+      '<div class="sheet-empty" style="padding:30px 10px;">No "oi" table found — re-run the fetch script with the updated parser.</div>';
+    document.getElementById('footerLeftOi').textContent = 'no data yet';
+    document.getElementById('footerRightOi').textContent = '';
     return;
   }
 
   const withPc = loadSnapshots('oi', 300);
-  document.getElementById('tabCountOi').textContent =
-    `${q("SELECT COUNT(DISTINCT fetched_at) FROM oi")[0][0]}`;
+  document.getElementById('countOi').textContent = `${q("SELECT COUNT(DISTINCT fetched_at) FROM oi")[0][0]}`;
 
-  if (!withPc.length) {
+  if(!withPc.length){
     document.getElementById('oiBody').innerHTML =
-      '<tr><td colspan="15" style="text-align:center;color:var(--dim)">no oi rows yet</td></tr>';
+      '<div class="sheet-empty" style="padding:30px 10px;">No OI rows yet.</div>';
     document.getElementById('footerLeftOi').textContent = 'no data yet';
     document.getElementById('footerRightOi').textContent = '';
     return;
@@ -1653,28 +1050,32 @@ function renderOi() {
   const [minTs, maxTs] = q("SELECT MIN(fetched_at), MAX(fetched_at) FROM oi")[0];
 
   const gaps = [];
-  for (let i = 0; i < withPc.length - 1; i++) {
+  for(let i=0;i<withPc.length-1;i++){
     gaps.push((new Date(withPc[i].ts) - new Date(withPc[i+1].ts)) / 60000);
   }
   gaps.sort((a,b)=>a-b);
   const medGap = gaps.length ? gaps[Math.floor(gaps.length/2)] : 0;
 
-  document.getElementById('oiBody').innerHTML = buildLogRowsHtml(withPc, medGap, 'oi');
+  const oiBodyEl = document.getElementById('oiBody');
+  oiBodyEl.className = viewMode === 'pc' ? '' : 'snap-list';
+  oiBodyEl.innerHTML = viewMode === 'pc'
+    ? buildLogTableHtml(withPc, medGap, 'oi')
+    : buildLogCardsHtml(withPc, medGap, 'oi');
 
   document.getElementById('footerLeftOi').textContent =
-    `${totalSnaps} fetched data versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} ${tzSuffix()}`;
+    `${totalSnaps} fetched versions · ${totalRows} total rows · range ${fmtTs(minTs)} → ${fmtTs(maxTs)} ${tzSuffix()}`;
   document.getElementById('footerRightOi').textContent =
-    `showing ${withPc.length}/${totalSnaps} · rows flagged where Δt > 2× median cadence`;
+    `showing ${withPc.length} of ${totalSnaps} · flagged where Δt exceeds 2× median cadence`;
 }
 
-/* ===== STRIKE DETAIL MODAL (new) — per-strike breakdown for a clicked snapshot row ===== */
-function fmtPct(v, d = 2) {
-  if (v === null || v === undefined || isNaN(v)) return '-';
+/* ===================== STRIKE DETAIL SHEET ===================== */
+function fmtPct(v, d = 2){
+  if(v === null || v === undefined || isNaN(v)) return '—';
   return (Number(v) * 100).toFixed(d) + '%';
 }
 
-function openStrikeModal(tableName, ts) {
-  if (!db) return;
+function openStrikeModal(tableName, ts){
+  if(!db) return;
 
   const strikeRows = q(
     `SELECT strike, call, put, vol_settle FROM ${tableName} WHERE fetched_at = ? ORDER BY strike ASC`,
@@ -1684,11 +1085,11 @@ function openStrikeModal(tableName, ts) {
   const modalBody = document.getElementById('strikeTableBody');
   const overlay = document.getElementById('strikeOverlay');
 
-  if (!strikeRows.length) {
-    document.getElementById('strikeModalTitle').textContent = 'strike breakdown';
+  if(!strikeRows.length){
+    document.getElementById('strikeModalTitle').textContent = 'Strike Breakdown';
     document.getElementById('strikeModalSub').textContent = fmtTs(ts) + ' ' + tzSuffix();
     document.getElementById('strikeModalStats').innerHTML = '';
-    modalBody.innerHTML = `<div class="strike-modal-empty">no per-strike rows found for this snapshot</div>`;
+    modalBody.innerHTML = `<div class="sheet-empty">No per-strike rows found for this snapshot.</div>`;
     overlay.classList.add('open');
     document.addEventListener('keydown', escCloseStrikeModal);
     return;
@@ -1700,64 +1101,57 @@ function openStrikeModal(tableName, ts) {
   )[0] || [];
   const [symbol, dte, futPrice, futChg, putOiTotal, callOiTotal, vol, volChg] = meta;
 
-  // ATM = strike closest to current future price
   let atmIdx = 0, atmDiff = Infinity;
   let maxCallIdx = 0, maxCallVal = -Infinity;
   let maxPutIdx = 0, maxPutVal = -Infinity;
   let minVolIdx = -1, minVolVal = Infinity;
   let maxOiForBars = 0;
 
-  strikeRows.forEach((r, idx) => {
+  strikeRows.forEach((r, idx)=>{
     const [strike, callOi, putOi, volSettle] = r;
     const diff = Math.abs(strike - futPrice);
-    if (diff < atmDiff) { atmDiff = diff; atmIdx = idx; }
-    if (callOi > maxCallVal) { maxCallVal = callOi; maxCallIdx = idx; }
-    if (putOi > maxPutVal) { maxPutVal = putOi; maxPutIdx = idx; }
-    if (volSettle != null && !isNaN(volSettle) && volSettle > 0 && volSettle < minVolVal) { minVolVal = volSettle; minVolIdx = idx; }
+    if(diff < atmDiff){ atmDiff = diff; atmIdx = idx; }
+    if(callOi > maxCallVal){ maxCallVal = callOi; maxCallIdx = idx; }
+    if(putOi > maxPutVal){ maxPutVal = putOi; maxPutIdx = idx; }
+    if(volSettle != null && !isNaN(volSettle) && volSettle > 0 && volSettle < minVolVal){ minVolVal = volSettle; minVolIdx = idx; }
     maxOiForBars = Math.max(maxOiForBars, callOi || 0, putOi || 0);
   });
 
-  document.getElementById('strikeModalTitle').textContent =
-    `${symbol || ''} · ${strikeRows.length} strikes`;
-  document.getElementById('strikeModalSub').textContent =
-    `snapshot ${fmtTs(ts)} ${tzSuffix()} · ${tableName} table`;
+  document.getElementById('strikeModalTitle').textContent = `${symbol || ''} · ${strikeRows.length} strikes`;
+  document.getElementById('strikeModalSub').textContent = `${fmtTs(ts)} ${tzSuffix()} · ${tableName}`;
 
   document.getElementById('strikeModalStats').innerHTML = `
-    <div><div class="s-l">future</div><div class="s-v">${fmtNum(futPrice,1)}</div></div>
-    <div><div class="s-l">dte</div><div class="s-v">${fmtNum(dte,2)}</div></div>
-    <div><div class="s-l">vol (settle avg)</div><div class="s-v">${fmtNum(vol,2)}</div></div>
-    <div><div class="s-l">put/call oi total</div><div class="s-v">${fmtInt(putOiTotal)} / ${fmtInt(callOiTotal)}</div></div>
+    <div><div class="s-l">Future</div><div class="s-v">${fmtNum(futPrice,1)}</div></div>
+    <div><div class="s-l">DTE</div><div class="s-v">${fmtNum(dte,2)}</div></div>
+    <div><div class="s-l">Vol (settle avg)</div><div class="s-v">${fmtNum(vol,2)}</div></div>
+    <div><div class="s-l">Put / Call OI</div><div class="s-v">${fmtInt(putOiTotal)} / ${fmtInt(callOiTotal)}</div></div>
   `;
 
-  // Build a compact diverging bar for each side. Bars wide enough to hold
-  // their own number get it printed inside (white, bold); thin/zero bars
-  // print the number just outside so nothing is ever unreadable.
-  function sideCell(side, oi, pct) {
+  function sideCell(side, oi, pct){
     const val = oi || 0;
-    if (!val) return `<span class="sr-num-outside zero-num">0</span>`;
+    if(!val) return `<span class="sr-num-outside zero-num">0</span>`;
     const label = fmtInt(val);
-    if (pct < 16) {
-      const stub = `<span class="sr-bar ${side}" style="width:6px"></span>`;
+    if(pct < 16){
+      const stub = `<span class="sr-bar ${side}" style="width:0%"></span>`;
       const num = `<span class="sr-num-outside">${label}</span>`;
-      return side === 'put' ? num + stub : stub + num;
+      requestAnimationFrame(()=>{});
+      return side === 'put' ? num + stub.replace('width:0%','width:6px') : stub.replace('width:0%','width:6px') + num;
     }
-    return `<span class="sr-bar ${side}" style="width:${pct}%"><span class="sr-bar-label">${label}</span></span>`;
+    return `<span class="sr-bar ${side}" data-w="${pct}" style="width:0%"><span class="sr-bar-label">${label}</span></span>`;
   }
 
-  modalBody.innerHTML = strikeRows.map((r, idx) => {
+  modalBody.innerHTML = strikeRows.map((r, idx)=>{
     const [strike, callOi, putOi, volSettle] = r;
     const callPct = maxOiForBars ? Math.round((callOi || 0) / maxOiForBars * 100) : 0;
     const putPct  = maxOiForBars ? Math.round((putOi || 0) / maxOiForBars * 100) : 0;
     const isMinVol = idx === minVolIdx && minVolVal < Infinity;
     const rowClasses = [
       idx === atmIdx ? 'atm' : '',
-      idx === maxCallIdx && maxCallVal > 0 ? 'max-call' : '',
-      idx === maxPutIdx && maxPutVal > 0 ? 'max-put' : '',
       isMinVol ? 'min-vol' : ''
     ].filter(Boolean).join(' ');
     const ivDigits = isMinVol ? 4 : 1;
     const ivContent = isMinVol
-      ? `<span class="min-vol-dot"></span>${fmtPct(volSettle, ivDigits)}`
+      ? `${fmtPct(volSettle, ivDigits)}<span class="min-vol-tag">low iv</span>`
       : fmtPct(volSettle, ivDigits);
 
     return `<div class="strike-row ${rowClasses}" ${idx === atmIdx ? 'id="srAtmRow"' : ''}>
@@ -1774,21 +1168,21 @@ function openStrikeModal(tableName, ts) {
   overlay.classList.add('open');
   document.addEventListener('keydown', escCloseStrikeModal);
 
-  // Center the view on the ATM strike so mobile users land right where the action is.
-  requestAnimationFrame(() => {
+  // fluid grow-in for the diverging bars, then settle
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.sr-bar[data-w]').forEach(el=>{
+      el.style.width = el.getAttribute('data-w') + '%';
+    });
     const atmEl = document.getElementById('srAtmRow');
-    if (atmEl) atmEl.scrollIntoView({ block: 'center' });
+    if(atmEl) atmEl.scrollIntoView({ block:'center' });
   });
 }
 
-function closeStrikeModal() {
+function closeStrikeModal(){
   document.getElementById('strikeOverlay').classList.remove('open');
   document.removeEventListener('keydown', escCloseStrikeModal);
 }
-
-function escCloseStrikeModal(e) {
-  if (e.key === 'Escape') closeStrikeModal();
-}
+function escCloseStrikeModal(e){ if(e.key === 'Escape') closeStrikeModal(); }
 </script>
 </body>
 </html>
