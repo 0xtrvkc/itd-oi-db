@@ -64,6 +64,8 @@ def init_db(conn):
     conn.executescript(f"""
         CREATE TABLE IF NOT EXISTS intraday ({SNAPSHOT_TABLE_SCHEMA});
         CREATE TABLE IF NOT EXISTS oi ({SNAPSHOT_TABLE_SCHEMA});
+        CREATE INDEX IF NOT EXISTS idx_intraday_fetched ON intraday(fetched_at);
+        CREATE INDEX IF NOT EXISTS idx_oi_fetched ON oi(fetched_at);
 
         CREATE TABLE IF NOT EXISTS fetch_log (
             id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -280,6 +282,13 @@ def run():
         print(f"[{source}] NEW — inserted {len(parsed['rows'])} rows into {table}")
 
         conn.commit()
+
+    # sql.js-httpvfs in the browser only fetches this one file — never the
+    # companion .db-wal file — so make sure everything is flushed into it
+    # and the DB isn't left in WAL mode before we publish it.
+    conn.execute("PRAGMA wal_checkpoint(TRUNCATE)")
+    conn.execute("PRAGMA journal_mode=DELETE")
+    conn.commit()
 
     conn.close()
 
