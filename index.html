@@ -825,7 +825,8 @@ async function autoLoad(){
         }
       }],
       'sql-httpvfs/sqlite.worker.js',
-      'sql-httpvfs/sql-wasm.wasm'
+      // resolved relative to sqlite.worker.js's own location (same folder), not the page
+      'sql-wasm.wasm'
     );
     dbMode = 'httpvfs';
 
