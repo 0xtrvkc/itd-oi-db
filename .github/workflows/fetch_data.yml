@@ -1,9 +1,9 @@
 name: Fetch Vol2Vol Data
 
+# Paused: no schedule or workflow_dispatch trigger.
+# Restore workflow_dispatch and/or schedule here to resume.
 on:
-  workflow_dispatch:          # triggered externally every 5 min via cron-job.org
-  schedule:
-    - cron: '*/15 * * * *'    # backup, in case external trigger fails
+  workflow_call:
 
 jobs:
   fetch:
